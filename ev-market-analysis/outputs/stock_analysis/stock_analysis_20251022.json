@@ -1,0 +1,359 @@
+{
+  "individual_stocks": {
+    "TSLA": {
+      "company": "Tesla",
+      "current_price": 238.42043444161652,
+      "price_history": {
+        "1d_change": -0.03688581920525702,
+        "1w_change": 0.06026507256499439,
+        "1m_change": 0.03509460685321142,
+        "3m_change": 0.14422904215558308,
+        "1y_change": 0.31994782813897565,
+        "ytd_change": -0.18719446700766051
+      },
+      "volume": {
+        "avg_volume_3m": 29663064,
+        "current_volume": 109642694,
+        "volume_trend": "stable"
+      },
+      "financials": {
+        "market_cap": 158816246000,
+        "pe_ratio": 67.4467551368468,
+        "ps_ratio": 8.499777348901741,
+        "pb_ratio": 1.3417534231542627,
+        "revenue_growth": 0.049832686833935824,
+        "gross_margin": 0.1238571888273627,
+        "operating_margin": 0.06269106627226292
+      },
+      "technical_indicators": {
+        "rsi": 68.5276271919035,
+        "macd": "bearish",
+        "ma_50": 234.78556546966144,
+        "ma_200": 280.98820996029565,
+        "support_level": 212.5,
+        "resistance_level": 287.5
+      },
+      "analyst_ratings": {
+        "strong_buy": 2,
+        "buy": 4,
+        "hold": 14,
+        "sell": 5,
+        "strong_sell": 2,
+        "average_target": 327.05018772302475,
+        "high_target": 335.7155348680514,
+        "low_target": 224.69805075289952
+      },
+      "risk_metrics": {
+        "beta": 1.392769950507529,
+        "volatility_30d": 0.38169275023465454,
+        "sharpe_ratio": -0.33089217495564494,
+        "max_drawdown": -0.2704532952551762
+      }
+    },
+    "BYD": {
+      "company": "BYD",
+      "current_price": 34.143646727524725,
+      "price_history": {
+        "1d_change": 0.008385115401790363,
+        "1w_change": 0.025937355636600767,
+        "1m_change": 0.049907948640447314,
+        "3m_change": 0.06899370028519314,
+        "1y_change": -0.10658741870780736,
+        "ytd_change": -0.12706091427320912
+      },
+      "volume": {
+        "avg_volume_3m": 49145099,
+        "current_volume": 38284160,
+        "volume_trend": "increasing"
+      },
+      "financials": {
+        "market_cap": 7778431500,
+        "pe_ratio": 16.171213586686786,
+        "ps_ratio": 6.171467573494667,
+        "pb_ratio": 1.4809405184943443,
+        "revenue_growth": 0.3630377338490718,
+        "gross_margin": 0.2229407207647469,
+        "operating_margin": 0.1128409516894901
+      },
+      "technical_indicators": {
+        "rsi": 60.60083247658689,
+        "macd": "bearish",
+        "ma_50": 38.336333859623295,
+        "ma_200": 32.9718910107941,
+        "support_level": 29.75,
+        "resistance_level": 40.25
+      },
+      "analyst_ratings": {
+        "strong_buy": 1,
+        "buy": 6,
+        "hold": 9,
+        "sell": 1,
+        "strong_sell": 2,
+        "average_target": 33.020838144288874,
+        "high_target": 52.923193510260134,
+        "low_target": 28.547209776293553
+      },
+      "risk_metrics": {
+        "beta": 1.613112666449453,
+        "volatility_30d": 0.3956448819246612,
+        "sharpe_ratio": 0.5953081997051997,
+        "max_drawdown": -0.3880621220538186
+      }
+    },
+    "RIVN": {
+      "company": "Rivian",
+      "current_price": 15.429171091413552,
+      "price_history": {
+        "1d_change": 0.016578940800301284,
+        "1w_change": -0.010778896403967786,
+        "1m_change": -0.049968923960856934,
+        "3m_change": 0.09735263486085488,
+        "1y_change": 0.07618113453595604,
+        "ytd_change": -0.166885313890937
+      },
+      "volume": {
+        "avg_volume_3m": 86458818,
+        "current_volume": 45588383,
+        "volume_trend": "increasing"
+      },
+      "financials": {
+        "market_cap": 4703299440,
+        "pe_ratio": null,
+        "ps_ratio": 9.96456008887293,
+        "pb_ratio": 13.58876640838917,
+        "revenue_growth": 0.29089286089280064,
+        "gross_margin": 0.09183272923947822,
+        "operating_margin": 0.1154565839816108
+      },
+      "technical_indicators": {
+        "rsi": 65.4441471452958,
+        "macd": "bearish",
+        "ma_50": 14.274712311985413,
+        "ma_200": 16.03915202203787,
+        "support_level": 12.75,
+        "resistance_level": 17.25
+      },
+      "analyst_ratings": {
+        "strong_buy": 9,
+        "buy": 5,
+        "hold": 9,
+        "sell": 0,
+        "strong_sell": 1,
+        "average_target": 13.910199177540838,
+        "high_target": 23.62194083518296,
+        "low_target": 12.595368436962525
+      },
+      "risk_metrics": {
+        "beta": 1.6568532366753816,
+        "volatility_30d": 0.36036204346335765,
+        "sharpe_ratio": 1.1706166255846733,
+        "max_drawdown": -0.3695943619656268
+      }
+    },
+    "LCID": {
+      "company": "Lucid",
+      "current_price": 4.096197750713644,
+      "price_history": {
+        "1d_change": 0.033300500704781064,
+        "1w_change": 0.05144448176311822,
+        "1m_change": 0.14531011574019573,
+        "3m_change": 0.1590559010981067,
+        "1y_change": 0.47970269349186484,
+        "ytd_change": 0.24014293494811023
+      },
+      "volume": {
+        "avg_volume_3m": 18999096,
+        "current_volume": 42554230,
+        "volume_trend": "increasing"
+      },
+      "financials": {
+        "market_cap": 3916106728,
+        "pe_ratio": null,
+        "ps_ratio": 3.2728840409802444,
+        "pb_ratio": 1.9348215650676732,
+        "revenue_growth": 0.42483030942778877,
+        "gross_margin": 0.24672540993744824,
+        "operating_margin": 0.08184332859952281
+      },
+      "technical_indicators": {
+        "rsi": 54.65849588818823,
+        "macd": "bearish",
+        "ma_50": 3.834681557197161,
+        "ma_200": 3.985260449678629,
+        "support_level": 3.4,
+        "resistance_level": 4.6
+      },
+      "analyst_ratings": {
+        "strong_buy": 0,
+        "buy": 7,
+        "hold": 12,
+        "sell": 3,
+        "strong_sell": 0,
+        "average_target": 3.7764089269487355,
+        "high_target": 6.429945122119481,
+        "low_target": 3.0005052086640944
+      },
+      "risk_metrics": {
+        "beta": 0.8426968117960046,
+        "volatility_30d": 0.23489788869821815,
+        "sharpe_ratio": 0.4869473779356177,
+        "max_drawdown": -0.23181697884016747
+      }
+    },
+    "NIO": {
+      "company": "NIO",
+      "current_price": 8.249423657496246,
+      "price_history": {
+        "1d_change": 0.028719450705442892,
+        "1w_change": 0.026875656808330428,
+        "1m_change": -0.11837519202477839,
+        "3m_change": -0.05316477361146732,
+        "1y_change": 0.10009849759958495,
+        "ytd_change": -0.18324348380768885
+      },
+      "volume": {
+        "avg_volume_3m": 67150890,
+        "current_volume": 113099327,
+        "volume_trend": "increasing"
+      },
+      "financials": {
+        "market_cap": 3396260192,
+        "pe_ratio": 21.418494299563825,
+        "ps_ratio": 3.2228645471751225,
+        "pb_ratio": 1.823664499591856,
+        "revenue_growth": -0.08981458520958308,
+        "gross_margin": 0.23353571719713645,
+        "operating_margin": 0.020917568466878728
+      },
+      "technical_indicators": {
+        "rsi": 69.84697534528424,
+        "macd": "neutral",
+        "ma_50": 7.993607380966191,
+        "ma_200": 8.73534491335639,
+        "support_level": 6.8,
+        "resistance_level": 9.2
+      },
+      "analyst_ratings": {
+        "strong_buy": 1,
+        "buy": 9,
+        "hold": 17,
+        "sell": 1,
+        "strong_sell": 3,
+        "average_target": 7.992760352421277,
+        "high_target": 10.62809133431462,
+        "low_target": 6.631225839535329
+      },
+      "risk_metrics": {
+        "beta": 1.090510794626386,
+        "volatility_30d": 0.503217287841492,
+        "sharpe_ratio": 0.5288531935124636,
+        "max_drawdown": -0.32252058358950564
+      }
+    }
+  },
+  "sector_analysis": {
+    "sector_market_cap": 178610343860,
+    "sector_performance": {
+      "1y": 0.1738685470117148,
+      "ytd": -0.08484824880627703
+    },
+    "vs_sp500": {
+      "outperformance_1y": 0.023868547011714814,
+      "correlation": 0.6935738450203032
+    },
+    "subsector_performance": {
+      "pure_play_ev": [
+        "TSLA",
+        "RIVN",
+        "LCID"
+      ],
+      "chinese_ev": [
+        "BYD",
+        "NIO",
+        "XPEV",
+        "LI"
+      ],
+      "traditional_oem": [
+        "F",
+        "GM",
+        "STLA"
+      ]
+    },
+    "momentum_indicators": {
+      "sector_trend": "downward",
+      "strength": "moderate"
+    }
+  },
+  "correlation_analysis": {
+    "correlations": {
+      "TSLA_vs_BYD": 0.5073571552513284,
+      "TSLA_vs_RIVN": 0.4555435048510619,
+      "TSLA_vs_LCID": 0.4794277208037044,
+      "TSLA_vs_NIO": 0.5455365751261391,
+      "BYD_vs_RIVN": 0.5196857633253692,
+      "BYD_vs_LCID": 0.5724865199769098,
+      "BYD_vs_NIO": 0.3991911212657655,
+      "RIVN_vs_LCID": 0.3631689889929975,
+      "RIVN_vs_NIO": 0.35994780166860285,
+      "LCID_vs_NIO": 0.421075542617221
+    },
+    "highest_correlation": "BYD_vs_LCID",
+    "lowest_correlation": "RIVN_vs_NIO",
+    "diversification_score": 0.5376579306120901
+  },
+  "valuation_metrics": {
+    "sector_average_pe": 35.01215434103247,
+    "sector_average_ps": 6.226310719884941,
+    "most_expensive": "RIVN",
+    "cheapest": "NIO",
+    "valuation_spread": {
+      "high_ps": 9.96456008887293,
+      "low_ps": 3.2228645471751225
+    }
+  },
+  "investment_insights": {
+    "investment_thesis": "1. 가장 매력적인 투자 기회:\n   - 주어진 데이터를 기반으로 볼 때, 가장 매력적인 투자 기회는 'TSLA'와 'LCID'로 보입니다. 이들 기업은 순수 전기차 기업으로서 섹터에서 유망한 위치를 차지하고 있으며, 가치평가 지표를 고려할 때 상대적으로 저평가되어 있는 것으로 나타납니다.\n\n2. 주요 리스크 요인:\n   - 섹터의 하락 추세와 관련된 높은 상관관계, 그리고 개별 기업들의 가격 수준을 고려할 때 시장 일반의 하락으로 인한 영향이 주요 리스크 요인으로 작용할 수 있습니다. 또한, 전기차 산업의 기술적인 변화나 정책적인 변화 역시 주요 리스크 요인으로 작용할 수 있습니다.\n\n3. 섹터 로테이션 전망:\n   - 현재 섹터의 트렌드는 하락세이며, 강도는 중간 수준으로 나타납니다. 따라서 단기적으로는 전기차 섹터의 하락이 지속될 수 있으나, 장기적으로는 전기차 시장의 성장이 지속될 것으로 전망됩니다.\n\n4. 포트폴리오 구성 추천:\n   - 포트폴리오 구성 시에는 'TSLA'와 'LCID'를 중심으로 구성하는 것이 좋을 수 있습니다. 이를 통해 전기차 섹터의 성장에 대한 노출을 높일 수 있으며, 가치평가 지표상으로도 매력적인 기업들입니다.\n\n5. 진입/청산 시점 제안:\n   - 현재 섹터의 하락 추세와 관련된 상황을 고려할 때, 진입 시점은 섹터의 하락이 진행 중인 시점이나 하락이 완만해질 때를 기다리는 것이 좋을 수 있습니다. 청산 시점은 섹터의 반등이 시작되거나 개별 기업의 가치가 상당히 높아졌을 때를 고려할 수 있습니다. 즉, 단기적인 시장 변동성을 고려하여 진입/청산 시점을 결정하는 것이 중요합니다.",
+    "top_picks": [
+      {
+        "ticker": "LCID",
+        "company": "Lucid",
+        "reason": "Strong fundamentals and growth potential"
+      },
+      {
+        "ticker": "TSLA",
+        "company": "Tesla",
+        "reason": "Strong fundamentals and growth potential"
+      },
+      {
+        "ticker": "BYD",
+        "company": "BYD",
+        "reason": "Strong fundamentals and growth potential"
+      }
+    ],
+    "risk_warnings": [
+      "High volatility in NIO"
+    ],
+    "generated_at": "2025-10-22T14:41:50.425238"
+  },
+  "market_sentiment": {
+    "analyst_sentiment": {
+      "bullish_percent": 0.35772357723577236,
+      "neutral_percent": 0.4959349593495935,
+      "bearish_percent": 0.14634146341463414,
+      "overall": "bullish"
+    },
+    "technical_sentiment": {
+      "average_rsi": 63.81561560945173,
+      "condition": "neutral"
+    },
+    "volume_sentiment": {
+      "trending_stocks": [
+        "BYD",
+        "RIVN",
+        "LCID",
+        "NIO"
+      ]
+    }
+  },
+  "timestamp": "2025-10-22T14:41:50.425238"
+}

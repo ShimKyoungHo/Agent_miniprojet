@@ -1,0 +1,33 @@
+# 전기차 시장 분석 시스템 설정
+
+# LLM 설정
+llm:
+  model: "gpt-4"
+  temperature: 0.7
+  max_tokens: 2000
+
+# Agent 설정
+agents:
+  market_research:
+    enabled: true
+    sources: ["news", "government", "reports"]
+  
+  company_analysis:
+    enabled: true
+    companies: ["Tesla", "BYD", "Volkswagen", "Hyundai", "GM"]
+  
+  stock_analysis:
+    enabled: true
+    api: "yfinance"
+
+# 리포트 설정
+report:
+  format: "pdf"
+  language: "ko"
+  include_charts: true
+  
+# 시스템 설정
+system:
+  max_retries: 3
+  timeout: 300
+  parallel_execution: true

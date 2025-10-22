@@ -1,0 +1,61 @@
+# Core dependencies
+langgraph>=0.0.20
+langchain>=0.1.0
+langchain-openai>=0.0.5
+langchain-core>=0.1.0
+
+# LLM and AI
+openai>=1.0.0
+tiktoken>=0.5.0
+
+# Async and parallel processing
+aiohttp>=3.9.0
+asyncio
+
+# Data processing
+pandas>=2.0.0
+numpy>=1.24.0
+pydantic>=2.0.0
+
+# API and Web
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+yfinance>=0.2.28
+alpha-vantage>=2.3.1
+
+# Visualization
+matplotlib>=3.7.0
+plotly>=5.17.0
+seaborn>=0.12.0
+networkx>=3.1
+
+# Configuration
+pyyaml>=6.0
+python-dotenv>=1.0.0
+
+# Logging and monitoring
+colorlog>=6.7.0
+tqdm>=4.65.0
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+
+# Development
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.5.0
+ipython>=8.14.0
+
+# 웹 검색
+tavily-python>=0.3.0
+
+# Optional: Database support
+# pymongo>=4.5.0
+# sqlalchemy>=2.0.0
+# redis>=5.0.0
+
+# Optional: Additional AI tools
+# transformers>=4.30.0
+# sentence-transformers>=2.2.0
