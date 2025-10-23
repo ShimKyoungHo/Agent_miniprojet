@@ -7,6 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from .base_agent import BaseAgent
 import pdfkit
+import os
 
 class ReportGenerationAgent(BaseAgent):
     """리포트 생성 Agent - 실제 검색 결과 기반"""
@@ -1204,7 +1205,7 @@ Tavily API를 통해 최신 웹 정보를 수집하고, OpenAI GPT-4를 활용�
             import traceback
             traceback.print_exc()
         
-        html += """
+        html += f"""
     
     <div class="section">
         <h2>{report['future_outlook']['title']}</h2>
@@ -1388,6 +1389,34 @@ Tavily API를 통해 최신 웹 정보를 수집하고, OpenAI GPT-4를 활용�
         
         self.logger.info("PDF 보고서 생성 시작...")
         
+        # Windows에서 wkhtmltopdf 경로 설정
+        if os.name == 'nt':  # Windows
+            wkhtmltopdf_path = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+            
+            # 경로가 존재하는지 확인
+            if not os.path.exists(wkhtmltopdf_path):
+                # 다른 일반적인 위치 확인
+                alternative_paths = [
+                    r'C:\Program Files (x86)\wkhtmltopdf\bin\wkhtmltopdf.exe',
+                    r'C:\wkhtmltopdf\bin\wkhtmltopdf.exe',
+                ]
+                for alt_path in alternative_paths:
+                    if os.path.exists(alt_path):
+                        wkhtmltopdf_path = alt_path
+                        break
+                else:
+                    raise FileNotFoundError(
+                        "wkhtmltopdf를 찾을 수 없습니다.\n"
+                        "다음 경로에 설치되어 있는지 확인하세요:\n"
+                        "  - C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe\n"
+                        "  - C:\\Program Files (x86)\\wkhtmltopdf\\bin\\wkhtmltopdf.exe\n\n"
+                        "다운로드: https://wkhtmltopdf.org/downloads.html"
+                    )
+            
+            config = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
+        else:  # Linux/Mac
+            config = None
+        
         # reports 디렉토리 생성
         reports_dir = Path("reports")
         reports_dir.mkdir(parents=True, exist_ok=True)
@@ -1417,7 +1446,11 @@ Tavily API를 통해 최신 웹 정보를 수집하고, OpenAI GPT-4를 활용�
         
         try:
             # HTML을 PDF로 변환
-            pdfkit.from_string(enhanced_html, str(pdf_path), options=options)
+            if os.name == 'nt':  # Windows
+                pdfkit.from_string(enhanced_html, str(pdf_path), options=options, configuration=config)
+            else:  # Linux/Mac
+                pdfkit.from_string(enhanced_html, str(pdf_path), options=options)
+            
             self.logger.info(f"✅ PDF 저장 완료: {pdf_path}")
             return str(pdf_path)
             
@@ -1505,7 +1538,7 @@ Tavily API를 통해 최신 웹 정보를 수집하고, OpenAI GPT-4를 활용�
             
             .metadata {
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
+                color: black;
                 padding: 25px;
                 border-radius: 10px;
                 margin: 30px 0;
