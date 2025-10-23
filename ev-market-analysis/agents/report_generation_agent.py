@@ -6,6 +6,7 @@ import asyncio
 from datetime import datetime
 from pathlib import Path
 from .base_agent import BaseAgent
+import pdfkit
 
 class ReportGenerationAgent(BaseAgent):
     """리포트 생성 Agent - 실제 검색 결과 기반"""
@@ -17,6 +18,7 @@ class ReportGenerationAgent(BaseAgent):
     async def process(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """리포트 생성 메인 프로세스"""
         self.logger.info("최종 리포트 생성 시작...")
+        self.state = state
         
         try:
             # 모든 분석 데이터 수집
@@ -76,6 +78,15 @@ class ReportGenerationAgent(BaseAgent):
             
             # JSON 버전 (구조화된 데이터)
             self.save_output(final_report, f'report_data_{timestamp}.json')
+
+            # PDF 버전 생성 (reports/ 디렉토리에 저장)
+            try:
+                pdf_path = self._generate_pdf_report(html_report, final_report, timestamp)
+                self.logger.info(f"✅ PDF 보고서 생성 완료: {pdf_path}")
+            except Exception as e:
+                self.logger.error(f"PDF 생성 중 오류: {e}")
+                import traceback
+                traceback.print_exc()
             
             # 상태 업데이트
             state['final_report'] = final_report
@@ -496,25 +507,24 @@ class ReportGenerationAgent(BaseAgent):
             consumer_synthesis = analysis_data.get('consumer_analysis', {}).get('synthesis', '')
             tech_synthesis = analysis_data.get('technology_analysis', {}).get('synthesis', '')
             stock_insights = analysis_data.get('stock_analysis', {}).get('investment_insights', '')
-            
             tech_roadmap = analysis_data.get('technology_analysis', {}).get('roadmap', {})
             
             prompt = f"""위 모든 분석 결과를 바탕으로 향후 전기차 시장에 대한 종합적인 전망을 제시하세요.
 
 **시장 분석 요약:**
-{market_synthesis[:300]}
+{market_synthesis[:400]}
 
 **기업 분석 요약:**
-{company_synthesis[:300]}
+{company_synthesis[:400]}
 
 **소비자 분석 요약:**
-{consumer_synthesis[:300]}
+{consumer_synthesis[:400]}
 
 **기술 분석 요약:**
-{tech_synthesis[:300]}
+{tech_synthesis[:400]}
 
 **투자 분석 요약:**
-{stock_insights[:300]}
+{stock_insights[:400]}
 
 다음 내용을 포함하여 작성하세요:
 
@@ -795,6 +805,126 @@ Tesla와 BYD가 시장을 선도하고 있으며, 전통 자동차 제조사들�
 Tavily API를 통해 최신 웹 정보를 수집하고, OpenAI GPT-4를 활용하여 데이터를 분석하고 인사이트를 도출했습니다.
 시장 조사, 기업 분석, 소비자 분석, 기술 분석, 주가 분석을 병렬로 수행하여 통합적인 시장 전망을 제시합니다.
 """
+
+    def _add_stock_charts_to_markdown(self, report: Dict) -> str:
+        """주가 차트를 Markdown에 추가 - 강화된 버전"""
+        
+        self.logger.info("=" * 60)
+        self.logger.info("차트 추가 프로세스 시작")
+        self.logger.info("=" * 60)
+        
+        # state 전체 키 확인
+        self.logger.info(f"state 키 목록: {list(self.state.keys())}")
+        
+        # ⭐ 방법 1: chart_files 키 확인
+        chart_files = self.state.get('chart_files', {})
+        
+        self.logger.info(f"chart_files 타입: {type(chart_files)}")
+        self.logger.info(f"chart_files 내용: {chart_files}")
+        
+        # ⭐ 방법 2: chart_files가 비어있으면 charts 키에서 정보 추출
+        if not chart_files:
+            self.logger.warning("⚠️ chart_files가 비어있습니다!")
+            
+            charts = self.state.get('charts', [])
+            self.logger.info(f"charts 키 확인: {type(charts)}, 길이: {len(charts) if isinstance(charts, list) else 'N/A'}")
+            
+            # charts에서 image_path 찾기
+            if isinstance(charts, list) and charts:
+                self.logger.info("charts 리스트에서 이미지 경로를 추출합니다...")
+                chart_files = {}
+                
+                for chart in charts:
+                    if isinstance(chart, dict):
+                        chart_id = chart.get('id')
+                        image_path = chart.get('image_path')
+                        
+                        if chart_id and image_path:
+                            chart_files[chart_id] = image_path
+                            self.logger.info(f"✅ {chart_id}: {image_path}")
+                
+                if chart_files:
+                    self.logger.info(f"✅ charts에서 {len(chart_files)}개 이미지 경로 추출 완료")
+        
+        # ⭐ 방법 3: 여전히 비어있으면 파일 시스템에서 직접 찾기
+        if not chart_files:
+            self.logger.warning("charts 키에도 이미지 경로가 없습니다. 파일 시스템을 확인합니다...")
+
+            chart_dir = Path("outputs/chart_generation")
+            
+            if chart_dir.exists():
+                chart_images = list(chart_dir.glob("*.png"))
+                self.logger.info(f"chart_generation 폴더에서 찾은 이미지: {len(chart_images)}개")
+                
+                if chart_images:
+                    # 최신 파일 찾기 (수정 시간 기준)
+                    chart_images.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+                    
+                    # 파일명으로 chart_files 재구성
+                    chart_files = {}
+                    for img in chart_images:
+                        if 'stock_performance' in img.name.lower():
+                            chart_files['stock_performance_chart'] = str(img)
+                            self.logger.info(f"✅ 주가 성과 차트 발견: {img.name}")
+                        elif 'valuation' in img.name.lower():
+                            chart_files['valuation_comparison_chart'] = str(img)
+                            self.logger.info(f"✅ 밸류에이션 차트 발견: {img.name}")
+                        
+                        # 2개 찾으면 중단
+                        if len(chart_files) >= 2:
+                            break
+                else:
+                    self.logger.error("❌ chart_generation 폴더에 이미지가 없습니다")
+            else:
+                self.logger.error(f"❌ chart_generation 폴더가 없습니다: {chart_dir}")
+                self.logger.info("차트 생성 Agent가 실행되지 않았거나 실패했을 가능성이 있습니다.")
+        
+        # 최종 확인
+        if not chart_files:
+            self.logger.error("❌ 모든 방법으로 차트 파일을 찾을 수 없습니다.")
+            self.logger.error("차트 섹션을 건너뜁니다.")
+            return ""
+        
+        self.logger.info(f"✅ 최종 사용할 차트 파일: {len(chart_files)}개")
+        for key, path in chart_files.items():
+            self.logger.info(f"   - {key}: {path}")
+        
+        chart_section = "\n\n### 📊 주가 분석 차트\n\n"
+        
+        # 주가 성과 차트
+        if 'stock_performance_chart' in chart_files:
+            chart_path = chart_files['stock_performance_chart']
+            filename = Path(chart_path).name
+            
+            chart_section += "#### 주요 전기차 기업 주가 성과 비교\n\n"
+            chart_section += f"![주가 성과](../chart_generation/{filename})\n\n"
+            chart_section += "*최근 1년간 전기차 관련 주식의 수익률 비교. "
+            chart_section += "YTD(연초 대비)와 1년 수익률을 함께 표시합니다.*\n\n"
+            chart_section += "---\n\n"
+            
+            self.logger.info(f"✅ 주가 성과 차트 추가: ../chart_generation/{filename}")
+        else:
+            self.logger.warning("⚠️ stock_performance_chart를 찾을 수 없습니다")
+        
+        # 밸류에이션 비교 차트
+        if 'valuation_comparison_chart' in chart_files:
+            chart_path = chart_files['valuation_comparison_chart']
+            filename = Path(chart_path).name
+            
+            chart_section += "#### 전기차 기업 밸류에이션 비교\n\n"
+            chart_section += f"![밸류에이션 비교](../chart_generation/{filename})\n\n"
+            chart_section += "*P/E 비율(X축)과 P/S 비율(Y축)을 통한 밸류에이션 분석. "
+            chart_section += "버블 크기는 시가총액을 나타냅니다.*\n\n"
+            chart_section += "---\n\n"
+            
+            self.logger.info(f"✅ 밸류에이션 차트 추가: ../chart_generation/{filename}")
+        else:
+            self.logger.warning("⚠️ valuation_comparison_chart를 찾을 수 없습니다")
+        
+        self.logger.info(f"차트 섹션 길이: {len(chart_section)} 문자")
+        self.logger.info("=" * 60)
+        
+        return chart_section
     
     def _format_as_markdown(self, report: Dict) -> str:
         """Markdown 형식으로 변환"""
@@ -845,6 +975,21 @@ Tavily API를 통해 최신 웹 정보를 수집하고, OpenAI GPT-4를 활용�
 ## {report['stock_analysis']['title']}
 
 {report['stock_analysis']['content']}
+---
+"""
+        try:
+            stock_charts_section = self._add_stock_charts_to_markdown(report)
+            if stock_charts_section:
+                md += stock_charts_section
+                self.logger.info("✅ 주가 차트가 보고서에 추가되었습니다")
+            else:
+                self.logger.warning("⚠️ 주가 차트 섹션이 비어있습니다")
+        except Exception as e:
+            self.logger.error(f"차트 추가 중 오류: {e}")
+            import traceback
+            traceback.print_exc()
+        
+        md += f"""
 
 ---
 
@@ -1044,6 +1189,23 @@ Tavily API를 통해 최신 웹 정보를 수집하고, OpenAI GPT-4를 활용�
         </div>
     </div>
     
+        """
+        
+        # 차트 섹션 추가
+        try:
+            chart_html = self._add_stock_charts_to_html(report)
+            if chart_html:
+                html += chart_html
+                self.logger.info("✅ 주가 차트가 HTML 보고서에 추가되었습니다")
+            else:
+                self.logger.warning("⚠️ 주가 차트 HTML 섹션이 비어있습니다")
+        except Exception as e:
+            self.logger.error(f"HTML 차트 추가 중 오류: {e}")
+            import traceback
+            traceback.print_exc()
+        
+        html += """
+    
     <div class="section">
         <h2>{report['future_outlook']['title']}</h2>
         <div class="section-content">
@@ -1108,6 +1270,89 @@ Tavily API를 통해 최신 웹 정보를 수집하고, OpenAI GPT-4를 활용�
         
         return '\n'.join(html_paragraphs)
     
+    def _add_stock_charts_to_html(self, report: Dict) -> str:
+        """주가 차트를 HTML에 추가"""
+        
+        self.logger.info("HTML 차트 추가 프로세스 시작")
+        
+        # chart_files 가져오기
+        chart_files = self.state.get('chart_files', {})
+        
+        if not chart_files:
+            charts = self.state.get('charts', [])
+            if isinstance(charts, list) and charts:
+                chart_files = {}
+                for chart in charts:
+                    if isinstance(chart, dict):
+                        chart_id = chart.get('id')
+                        image_path = chart.get('image_path')
+                        if chart_id and image_path:
+                            chart_files[chart_id] = image_path
+        
+        if not chart_files:
+            chart_dir = Path("outputs/chart_generation")
+            if chart_dir.exists():
+                chart_images = list(chart_dir.glob("*.png"))
+                if chart_images:
+                    chart_images.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+                    chart_files = {}
+                    for img in chart_images:
+                        if 'stock_performance' in img.name.lower():
+                            chart_files['stock_performance_chart'] = str(img)
+                        elif 'valuation' in img.name.lower():
+                            chart_files['valuation_comparison_chart'] = str(img)
+                        if len(chart_files) >= 2:
+                            break
+        
+        if not chart_files:
+            self.logger.error("❌ HTML용 차트 파일을 찾을 수 없습니다.")
+            return ""
+        
+        self.logger.info(f"✅ HTML에 추가할 차트 파일: {len(chart_files)}개")
+        
+        html_section = """
+    <div class="section">
+        <h2>📊 주가 분석 차트</h2>
+        <div class="section-content">
+"""
+        
+        # 주가 성과 차트
+        if 'stock_performance_chart' in chart_files:
+            chart_path = chart_files['stock_performance_chart']
+            filename = Path(chart_path).name
+            
+            html_section += f"""
+            <h3>주요 전기차 기업 주가 성과 비교</h3>
+            <img src="../chart_generation/{filename}" alt="주가 성과" style="max-width: 100%; height: auto; margin: 20px 0;">
+            <p style="font-style: italic; color: #666;">
+                최근 1년간 전기차 관련 주식의 수익률 비교. YTD(연초 대비)와 1년 수익률을 함께 표시합니다.
+            </p>
+            <hr style="margin: 30px 0;">
+"""
+            self.logger.info(f"✅ HTML에 주가 성과 차트 추가: {filename}")
+        
+        # 밸류에이션 비교 차트
+        if 'valuation_comparison_chart' in chart_files:
+            chart_path = chart_files['valuation_comparison_chart']
+            filename = Path(chart_path).name
+            
+            html_section += f"""
+            <h3>전기차 기업 밸류에이션 비교</h3>
+            <img src="../chart_generation/{filename}" alt="밸류에이션 비교" style="max-width: 100%; height: auto; margin: 20px 0;">
+            <p style="font-style: italic; color: #666;">
+                P/E 비율(X축)과 P/S 비율(Y축)을 통한 밸류에이션 분석. 버블 크기는 시가총액을 나타냅니다.
+            </p>
+            <hr style="margin: 30px 0;">
+"""
+            self.logger.info(f"✅ HTML에 밸류에이션 차트 추가: {filename}")
+        
+        html_section += """
+        </div>
+    </div>
+"""
+        
+        return html_section
+    
     def _convert_table_to_html(self, table_text: str) -> str:
         """마크다운 표를 HTML 테이블로 변환"""
         lines = table_text.strip().split('\n')
@@ -1137,3 +1382,243 @@ Tavily API를 통해 최신 웹 정보를 수집하고, OpenAI GPT-4를 활용�
         html += '  </tbody>\n</table>'
         
         return html
+    
+    def _generate_pdf_report(self, html_content: str, report_data: Dict, timestamp: str) -> str:
+        """HTML을 PDF로 변환하여 reports/ 디렉토리에 저장"""
+        
+        self.logger.info("PDF 보고서 생성 시작...")
+        
+        # reports 디렉토리 생성
+        reports_dir = Path("reports")
+        reports_dir.mkdir(parents=True, exist_ok=True)
+        
+        # PDF 파일명
+        pdf_filename = f"report_{timestamp}.pdf"
+        pdf_path = reports_dir / pdf_filename
+        
+        # PDF 생성을 위한 HTML 개선
+        enhanced_html = self._enhance_html_for_pdf(html_content, report_data)
+        
+        # PDF 옵션 설정
+        options = {
+            'page-size': 'A4',
+            'margin-top': '20mm',
+            'margin-right': '20mm',
+            'margin-bottom': '20mm',
+            'margin-left': '20mm',
+            'encoding': "UTF-8",
+            'no-outline': None,
+            'enable-local-file-access': None,
+            'print-media-type': None,
+            'dpi': 300,
+            'image-quality': 95,
+            'quiet': ''
+        }
+        
+        try:
+            # HTML을 PDF로 변환
+            pdfkit.from_string(enhanced_html, str(pdf_path), options=options)
+            self.logger.info(f"✅ PDF 저장 완료: {pdf_path}")
+            return str(pdf_path)
+            
+        except Exception as e:
+            self.logger.error(f"PDF 생성 실패: {e}")
+            raise
+    
+    def _enhance_html_for_pdf(self, html_content: str, report_data: Dict) -> str:
+        """PDF 출력을 위한 HTML 개선"""
+        
+        # 차트 이미지 경로를 절대 경로로 변경
+        from pathlib import Path
+        import os
+        
+        # 현재 작업 디렉토리
+        cwd = os.getcwd()
+        
+        # 상대 경로를 절대 경로로 변환 (Windows/Linux 호환)
+        chart_dir = Path(cwd) / "outputs" / "chart_generation"
+        
+        # Windows에서는 file:/// 경로 형식이 다름
+        if os.name == 'nt':  # Windows
+            file_prefix = f'file:///{str(chart_dir).replace(chr(92), "/")}'
+            
+        else:  # Linux/Mac
+            file_prefix = f'file://{chart_dir}'
+        
+        html_content = html_content.replace(
+            'src="../chart_generation/',
+            f'src="{file_prefix}/'
+        )
+        
+        self.logger.info(f"차트 경로 변환: ../chart_generation/ -> {file_prefix}/")
+        
+        # PDF 전용 스타일 추가
+        pdf_styles = """
+        <style>
+            @page {
+                size: A4;
+                margin: 20mm;
+            }
+            
+            body {
+                font-family: 'Noto Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+                line-height: 1.8;
+                color: #2c3e50;
+                background-color: white;
+            }
+            
+            h1 {
+                color: #1a5490;
+                border-bottom: 4px solid #3498db;
+                padding-bottom: 15px;
+                margin-top: 50px;
+                margin-bottom: 30px;
+                font-size: 28px;
+                page-break-after: avoid;
+            }
+            
+            h1:first-of-type {
+                margin-top: 0;
+                font-size: 36px;
+                text-align: center;
+                border-bottom: none;
+                color: #2c3e50;
+            }
+            
+            h2 {
+                color: #2c3e50;
+                border-left: 5px solid #3498db;
+                padding-left: 15px;
+                margin-top: 35px;
+                margin-bottom: 20px;
+                font-size: 22px;
+                page-break-after: avoid;
+            }
+            
+            h3 {
+                color: #34495e;
+                margin-top: 25px;
+                margin-bottom: 15px;
+                font-size: 18px;
+                page-break-after: avoid;
+            }
+            
+            .metadata {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 25px;
+                border-radius: 10px;
+                margin: 30px 0;
+                page-break-inside: avoid;
+            }
+            
+            .metadata p {
+                margin: 8px 0;
+                font-size: 14px;
+            }
+            
+            .description {
+                background-color: #ecf8ff;
+                border-left: 5px solid #3498db;
+                padding: 20px;
+                margin: 25px 0;
+                border-radius: 5px;
+                page-break-inside: avoid;
+            }
+            
+            .section {
+                page-break-inside: avoid;
+                margin-bottom: 40px;
+            }
+            
+            .section-content {
+                text-align: justify;
+                font-size: 14px;
+            }
+            
+            img {
+                max-width: 100%;
+                height: auto;
+                page-break-inside: avoid;
+                margin: 20px 0;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+                page-break-inside: avoid;
+                font-size: 13px;
+            }
+            
+            th {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 12px;
+                text-align: left;
+                font-weight: bold;
+            }
+            
+            td {
+                padding: 10px 12px;
+                border: 1px solid #ddd;
+            }
+            
+            tr:nth-child(even) {
+                background-color: #f8f9fa;
+            }
+            
+            .references {
+                background-color: #f8f9fa;
+                padding: 25px;
+                border-radius: 10px;
+                margin-top: 40px;
+            }
+            
+            .reference-item {
+                margin: 15px 0;
+                padding: 15px;
+                background-color: white;
+                border-left: 3px solid #3498db;
+                border-radius: 5px;
+                page-break-inside: avoid;
+            }
+            
+            .methodology {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 25px;
+                border-radius: 10px;
+                margin-top: 40px;
+                page-break-inside: avoid;
+            }
+            
+            strong {
+                color: #2c3e50;
+                font-weight: 600;
+            }
+            
+            /* 프린트 시 배경색 유지 */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            /* 페이지 나누기 규칙 */
+            h1, h2, h3 {
+                page-break-after: avoid;
+            }
+            
+            p {
+                orphans: 3;
+                widows: 3;
+            }
+        </style>
+        """
+        
+        # </head> 태그 앞에 PDF 스타일 삽입
+        html_content = html_content.replace('</style>\n</head>', '</style>\n' + pdf_styles + '\n</head>')
+        
+        return html_content

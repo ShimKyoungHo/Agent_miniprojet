@@ -47,6 +47,7 @@ class AgentState(TypedDict):
     # 생성된 결과물
     charts: Optional[List[Dict]]
     charts_generated: bool
+    chart_files: Optional[Dict[str, str]]
     dashboard: Optional[Dict]
     
     # 최종 리포트

@@ -63,8 +63,19 @@ ev-market-analysis/
 - 투자 추천 및 리스크 분석
 - 종합 투자 리포트 (PDF)
 
-## 📝 라이선스
-MIT License
+## 👥 만든이
+심경호
 
-## 👥 기여자
-프로젝트 팀
+## 기존과 바뀐점
+
+### Before
+- Supervisor_agent 사용하여 하위 agent들을 관리
+- 3 chain 으로 이루어져 시장 분석 -> 소비자 분석, 기업 분석 -> 기술 분석, 주식분석
+  으로 병렬 처리 진행
+- State 상태
+
+### After
+- agent들 역할 및 특성상 Supervisor 불필요 -> 순차 처리 및 병렬 처리로 변경
+- 주식 분석 agent에 기업 목록이 필요하여 2 chain으로 구성 후
+  기업 분석 -> 기술 분석과 병렬로 처리
+- State 추가로 설정

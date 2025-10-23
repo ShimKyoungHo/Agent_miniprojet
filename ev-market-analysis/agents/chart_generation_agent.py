@@ -1,29 +1,56 @@
 # 차트 생성 Agent - 데이터 시각화
 # agents/chart_generation_agent.py
 
+import sys
+from pathlib import Path
 from typing import Dict, Any, Optional, List
 import asyncio
 from datetime import datetime
 import json
 from .base_agent import BaseAgent
 
+# ⭐ ChartImageGenerator import (에러 처리 포함)
+try:
+    # 프로젝트 루트를 sys.path에 추가
+    project_root = Path(__file__).parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+    
+    from chart_to_image_integration import ChartImageGenerator
+    CHART_IMAGE_AVAILABLE = True
+except ImportError as e:
+    print(f"⚠️  차트 이미지 생성 기능을 사용할 수 없습니다: {e}")
+    print(f"   chart_to_image_integration.py 파일이 프로젝트 루트에 있는지 확인하세요.")
+    ChartImageGenerator = None
+    CHART_IMAGE_AVAILABLE = False
+
 class ChartGenerationAgent(BaseAgent):
     """차트 생성 Agent"""
     
     def __init__(self, llm=None, config: Optional[Dict] = None):
         super().__init__("chart_generation", llm, config)
+        self.use_image_generation = CHART_IMAGE_AVAILABLE
         
     async def process(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """차트 생성 메인 프로세스"""
         self.logger.info("차트 생성 시작...")
         
         try:
-            # 필요한 데이터 수집
-            market_data = state.get('market_data', {})
-            consumer_patterns = state.get('consumer_patterns', {})
-            company_analysis = state.get('company_analysis', {})
-            tech_trends = state.get('tech_trends', {})
-            stock_analysis = state.get('stock_analysis', {})
+            # ⭐ 안전한 데이터 수집 (타입 체크 포함)
+            market_data = self._safe_get_data(state, 'market_data')
+            consumer_patterns = self._safe_get_data(state, 'consumer_patterns')
+            company_analysis = self._safe_get_data(state, 'company_analysis')
+            tech_trends = self._safe_get_data(state, 'tech_trends')
+            stock_analysis = self._safe_get_data(state, 'stock_analysis')
+            
+            # 데이터 상태 로깅
+            self.logger.info(f"데이터 수집 상태:")
+            self.logger.info(f"  - market_data: {type(market_data).__name__} ({'있음' if market_data else '없음'})")
+            self.logger.info(f"  - consumer_patterns: {type(consumer_patterns).__name__} ({'있음' if consumer_patterns else '없음'})")
+            self.logger.info(f"  - company_analysis: {type(company_analysis).__name__} ({'있음' if company_analysis else '없음'})")
+            self.logger.info(f"  - tech_trends: {type(tech_trends).__name__} ({'있음' if tech_trends else '없음'})")
+            self.logger.info(f"  - stock_analysis: {type(stock_analysis).__name__} ({'있음' if stock_analysis else '없음'})")
+
             
             # 병렬로 여러 차트 생성
             tasks = [
@@ -46,6 +73,21 @@ class ChartGenerationAgent(BaseAgent):
                 else:
                     self.logger.error(f"차트 생성 실패: {result}")
             
+            # ⭐ 차트를 이미지 파일로 저장 (가능한 경우)
+            chart_files = {}
+            if self.use_image_generation and ChartImageGenerator:
+                try:
+                    self.logger.info("차트를 이미지 파일로 저장 중...")
+                    image_generator = ChartImageGenerator(output_dir="outputs/chart_generation")
+                    chart_files = image_generator.generate_all_charts(charts)
+                    self.logger.info(f"✅ {len(chart_files)}개 차트 이미지 저장 완료")
+                except Exception as img_error:
+                    self.logger.error(f"차트 이미지 저장 실패: {img_error}")
+                    import traceback
+                    traceback.print_exc()
+            else:
+                self.logger.warning("차트 이미지 생성 기능이 비활성화되어 있습니다.")
+            
             # 대시보드 구성
             dashboard = self._create_dashboard_layout(charts)
             
@@ -54,14 +96,17 @@ class ChartGenerationAgent(BaseAgent):
                 'total_charts': len(charts),
                 'chart_types': self._get_chart_types(charts),
                 'generated_at': self.get_timestamp(),
-                'dashboard_config': dashboard
+                'dashboard_config': dashboard,
+                'chart_image_files': chart_files,
+                'image_generation_enabled': self.use_image_generation
             }
             
             # 결과 저장
             output_data = {
                 'charts': charts,
                 'metadata': chart_metadata,
-                'dashboard': dashboard
+                'dashboard': dashboard,
+                'chart_files': chart_files
             }
             
             # 차트 데이터를 JSON으로 저장
@@ -74,15 +119,54 @@ class ChartGenerationAgent(BaseAgent):
             # 상태 업데이트
             state['charts_generated'] = True
             state['charts'] = charts
+            state['chart_files'] = chart_files
             state['dashboard'] = dashboard
             
-            self.logger.info(f"차트 생성 완료: {len(charts)}개 차트")
+            self.logger.info(f"차트 생성 완료: {len(charts)}개 차트, {len(chart_files)}개 이미지")
             
         except Exception as e:
             self.logger.error(f"차트 생성 중 오류: {e}")
+            import traceback
+            traceback.print_exc()
             state['chart_generation_error'] = str(e)
             
         return state
+    
+    def _safe_get_data(self, state: Dict, key: str) -> Dict:
+        """
+        state에서 안전하게 데이터 가져오기
+        
+        Args:
+            state: 전체 상태
+            key: 가져올 키
+            
+        Returns:
+            딕셔너리 데이터 또는 빈 딕셔너리
+        """
+        data = state.get(key, {})
+        
+        # None이면 빈 딕셔너리 반환
+        if data is None:
+            self.logger.warning(f"{key}가 None입니다. 빈 딕셔너리로 대체합니다.")
+            return {}
+        
+        # 딕셔너리가 아니면 변환 시도
+        if not isinstance(data, dict):
+            self.logger.warning(f"{key}가 딕셔너리가 아닙니다 (타입: {type(data).__name__}). 빈 딕셔너리로 대체합니다.")
+            
+            # 문자열이면 JSON 파싱 시도
+            if isinstance(data, str):
+                try:
+                    parsed = json.loads(data)
+                    if isinstance(parsed, dict):
+                        self.logger.info(f"{key} JSON 파싱 성공")
+                        return parsed
+                except:
+                    pass
+            
+            return {}
+        
+        return data
     
     async def _create_market_growth_chart(self, market_data: Dict) -> Dict:
         """시장 성장 차트 생성"""
@@ -177,113 +261,234 @@ class ChartGenerationAgent(BaseAgent):
         }
     
     async def _create_stock_performance_chart(self, stock_analysis: Dict) -> Dict:
-        """주가 성과 차트 생성"""
+        """주가 성과 차트 생성 - 안전한 버전"""
         self.logger.info("주가 성과 차트 생성 중...")
         
-        await asyncio.sleep(0.5)
-        
-        stocks = stock_analysis.get('individual_stocks', {})
-        
-        performance_data = []
-        for ticker, data in stocks.items():
-            performance_data.append({
-                'ticker': ticker,
-                'ytd': data['price_history']['ytd_change'] * 100,
-                '1y': data['price_history']['1y_change'] * 100
-            })
-        
-        return {
-            'id': 'stock_performance_chart',
-            'type': 'bar',
-            'title': 'EV Stock Performance Comparison',
-            'data': {
-                'x': [d['ticker'] for d in performance_data],
-                'y_ytd': [d['ytd'] for d in performance_data],
-                'y_1y': [d['1y'] for d in performance_data],
-                'series': [
-                    {'name': 'YTD Return (%)', 'type': 'bar', 'color': '#2ca02c'},
-                    {'name': '1Y Return (%)', 'type': 'bar', 'color': '#1f77b4'}
-                ]
-            },
-            'layout': {
-                'xaxis': {'title': 'Stock Ticker'},
-                'yaxis': {'title': 'Return (%)'},
-                'barmode': 'grouped',
-                'height': 400
-            },
-            'insights': 'Chinese EV stocks showing strong momentum'
-        }
+        try:
+            await asyncio.sleep(0.5)
+            
+            # ⭐ 안전한 데이터 체크
+            if not stock_analysis or not isinstance(stock_analysis, dict):
+                self.logger.warning("stock_analysis가 딕셔너리가 아닙니다. 빈 차트를 반환합니다.")
+                return {}
+            
+            stocks = stock_analysis.get('individual_stocks', {})
+            
+            if not stocks or not isinstance(stocks, dict):
+                self.logger.warning("individual_stocks 데이터가 없습니다.")
+                return {}
+            
+            performance_data = []
+            for ticker, data in stocks.items():
+                try:
+                    # ⭐ 안전한 데이터 접근
+                    if not isinstance(data, dict):
+                        self.logger.debug(f"{ticker}: data가 딕셔너리가 아닙니다")
+                        continue
+                    
+                    price_history = data.get('price_history', {})
+                    if not isinstance(price_history, dict):
+                        self.logger.debug(f"{ticker}: price_history가 딕셔너리가 아닙니다")
+                        continue
+                    
+                    ytd_change = price_history.get('ytd_change')
+                    yearly_change = price_history.get('1y_change')
+                    
+                    # ⭐ 데이터가 있는 경우만 추가
+                    if ytd_change is not None and yearly_change is not None:
+                        performance_data.append({
+                            'ticker': ticker,
+                            'ytd': float(ytd_change) * 100,
+                            '1y': float(yearly_change) * 100
+                        })
+                        self.logger.debug(f"{ticker}: 성과 데이터 추가 완료")
+                    else:
+                        self.logger.debug(f"{ticker}: 성과 데이터 누락 (YTD: {ytd_change}, 1Y: {yearly_change})")
+                        
+                except Exception as e:
+                    self.logger.warning(f"{ticker} 처리 중 오류: {e}")
+                    continue
+            
+            # ⭐ 데이터가 없으면 빈 차트 반환
+            if not performance_data:
+                self.logger.warning("주가 성과 데이터가 없습니다. 빈 차트를 반환합니다.")
+                return {}
+            
+            self.logger.info(f"주가 성과 차트 데이터: {len(performance_data)}개 종목")
+            
+            return {
+                'id': 'stock_performance_chart',
+                'type': 'bar',
+                'title': 'EV Stock Performance Comparison',
+                'data': {
+                    'x': [d['ticker'] for d in performance_data],
+                    'y_ytd': [d['ytd'] for d in performance_data],
+                    'y_1y': [d['1y'] for d in performance_data],
+                    'series': [
+                        {'name': 'YTD Return (%)', 'type': 'bar', 'color': '#2ca02c'},
+                        {'name': '1Y Return (%)', 'type': 'bar', 'color': '#1f77b4'}
+                    ]
+                },
+                'layout': {
+                    'xaxis': {'title': 'Stock Ticker'},
+                    'yaxis': {'title': 'Return (%)'},
+                    'barmode': 'grouped',
+                    'height': 400
+                },
+                'insights': 'Performance comparison across major EV stocks'
+            }
+            
+        except Exception as e:
+            self.logger.error(f"주가 성과 차트 생성 오류: {e}")
+            import traceback
+            traceback.print_exc()
+            return {}
     
     async def _create_consumer_preference_chart(self, consumer_patterns: Dict) -> Dict:
-        """소비자 선호도 차트 생성"""
+        """소비자 선호도 차트 생성 - 안전한 버전"""
         self.logger.info("소비자 선호도 차트 생성 중...")
         
-        await asyncio.sleep(0.5)
-        
-        preferences = consumer_patterns.get('preferences', {}).get('vehicle_type', {})
-        
-        return {
-            'id': 'consumer_preference_chart',
-            'type': 'horizontal_bar',
-            'title': 'Consumer Vehicle Type Preferences',
-            'data': {
-                'categories': list(preferences.keys()),
-                'values': [v * 100 for v in preferences.values()],
-                'series': [{
-                    'name': 'Preference (%)',
-                    'type': 'bar',
-                    'orientation': 'h',
-                    'color': '#ff7f0e'
-                }]
-            },
-            'layout': {
-                'xaxis': {'title': 'Preference (%)'},
-                'yaxis': {'title': 'Vehicle Type'},
-                'height': 350
-            },
-            'insights': 'SUVs dominate consumer preferences at 40%'
-        }
+        try:
+            await asyncio.sleep(0.5)
+            
+            # ⭐ 안전한 데이터 접근
+            if not consumer_patterns or not isinstance(consumer_patterns, dict):
+                self.logger.warning("consumer_patterns가 딕셔너리가 아닙니다")
+                return {}
+            
+            preferences = consumer_patterns.get('preferences', {})
+            if not isinstance(preferences, dict):
+                self.logger.warning("preferences가 딕셔너리가 아닙니다")
+                return {}
+            
+            vehicle_type = preferences.get('vehicle_type', {})
+            if not isinstance(vehicle_type, dict) or not vehicle_type:
+                self.logger.warning("vehicle_type 데이터가 없습니다")
+                return {}
+            
+            return {
+                'id': 'consumer_preference_chart',
+                'type': 'horizontal_bar',
+                'title': 'Consumer Vehicle Type Preferences',
+                'data': {
+                    'categories': list(vehicle_type.keys()),
+                    'values': [v * 100 for v in vehicle_type.values()],
+                    'series': [{
+                        'name': 'Preference (%)',
+                        'type': 'bar',
+                        'orientation': 'h',
+                        'color': '#ff7f0e'
+                    }]
+                },
+                'layout': {
+                    'xaxis': {'title': 'Preference (%)'},
+                    'yaxis': {'title': 'Vehicle Type'},
+                    'height': 350
+                },
+                'insights': 'SUVs dominate consumer preferences at 40%'
+            }
+        except Exception as e:
+            self.logger.error(f"소비자 선호도 차트 생성 오류: {e}")
+            import traceback
+            traceback.print_exc()
+            return {}
     
     async def _create_regional_comparison_chart(self, market_data: Dict) -> Dict:
-        """지역별 비교 차트 생성"""
+        """지역별 비교 차트 생성 - 키 필터링 개선"""
         self.logger.info("지역별 비교 차트 생성 중...")
         
-        await asyncio.sleep(0.5)
-        
-        regional = market_data.get('regional_markets', {})
-        
-        regions_data = []
-        for region, data in regional.items():
-            regions_data.append({
-                'region': region.replace('_', ' ').title(),
-                'market_size': data.get('market_size', 0) / 1000000000,  # Convert to billions
-                'growth_rate': data.get('growth_rate', 0) * 100,
-                'ev_penetration': data.get('ev_penetration', 0) * 100
-            })
-        
-        return {
-            'id': 'regional_comparison_chart',
-            'type': 'scatter',
-            'title': 'Regional EV Markets: Size vs Growth',
-            'data': {
-                'x': [d['market_size'] for d in regions_data],
-                'y': [d['growth_rate'] for d in regions_data],
-                'size': [d['ev_penetration'] * 5 for d in regions_data],  # Bubble size
-                'labels': [d['region'] for d in regions_data],
-                'series': [{
-                    'name': 'Regional Markets',
-                    'type': 'scatter',
-                    'mode': 'markers+text',
-                    'color': '#9467bd'
-                }]
-            },
-            'layout': {
-                'xaxis': {'title': 'Market Size (Billion USD)'},
-                'yaxis': {'title': 'Growth Rate (%)'},
-                'height': 400
-            },
-            'insights': 'Asia Pacific leads in both size and growth rate'
-        }
+        try:
+            await asyncio.sleep(0.5)
+            
+            # 안전한 데이터 접근
+            if not market_data or not isinstance(market_data, dict):
+                self.logger.warning("market_data가 딕셔너리가 아닙니다")
+                return {}
+            
+            regional = market_data.get('regional_markets', {})
+            if not isinstance(regional, dict) or not regional:
+                self.logger.warning("regional_markets 데이터가 없습니다")
+                return {}
+            
+            # ⭐ 메타데이터 키 필터링 (analysis_date 등 제외)
+            metadata_keys = {
+                'analysis_date', 'timestamp', 'generated_at', 
+                'last_updated', 'source', 'metadata', 'notes'
+            }
+            
+            regions_data = []
+            for region, data in regional.items():
+                # 메타데이터 키 건너뛰기
+                if region in metadata_keys:
+                    self.logger.debug(f"{region}: 메타데이터 키이므로 건너뜁니다")
+                    continue
+                
+                try:
+                    # 데이터가 딕셔너리가 아니면 건너뛰기
+                    if not isinstance(data, dict):
+                        self.logger.warning(f"{region}: data가 딕셔너리가 아닙니다 (타입: {type(data).__name__})")
+                        continue
+                    
+                    market_size = data.get('market_size', 0)
+                    growth_rate = data.get('growth_rate', 0)
+                    ev_penetration = data.get('ev_penetration', 0)
+                    
+                    # 데이터 검증
+                    if market_size == 0 and growth_rate == 0 and ev_penetration == 0:
+                        self.logger.debug(f"{region}: 모든 값이 0이므로 건너뜁니다")
+                        continue
+                    
+                    regions_data.append({
+                        'region': region.replace('_', ' ').title(),
+                        'market_size': float(market_size) / 1000000000 if market_size > 1000000 else float(market_size),
+                        'growth_rate': float(growth_rate) * 100 if growth_rate <= 1 else float(growth_rate),
+                        'ev_penetration': float(ev_penetration) * 100 if ev_penetration <= 1 else float(ev_penetration)
+                    })
+                    self.logger.debug(f"✅ {region}: 데이터 추가 완료")
+                except Exception as e:
+                    self.logger.warning(f"{region} 처리 중 오류: {e}")
+                    continue
+            
+            # 데이터가 없으면 기본값 사용
+            if not regions_data:
+                self.logger.warning("처리 가능한 지역 데이터가 없습니다. 기본값 사용")
+                regions_data = [
+                    {'region': 'China', 'market_size': 650, 'growth_rate': 25, 'ev_penetration': 30},
+                    {'region': 'Europe', 'market_size': 280, 'growth_rate': 20, 'ev_penetration': 25},
+                    {'region': 'North America', 'market_size': 150, 'growth_rate': 15, 'ev_penetration': 10},
+                    {'region': 'Asia Pacific', 'market_size': 120, 'growth_rate': 30, 'ev_penetration': 15}
+                ]
+            
+            self.logger.info(f"지역별 차트 데이터: {len(regions_data)}개 지역")
+            
+            return {
+                'id': 'regional_comparison_chart',
+                'type': 'scatter',
+                'title': 'Regional EV Markets: Size vs Growth',
+                'data': {
+                    'x': [d['market_size'] for d in regions_data],
+                    'y': [d['growth_rate'] for d in regions_data],
+                    'size': [d['ev_penetration'] * 5 for d in regions_data],
+                    'labels': [d['region'] for d in regions_data],
+                    'series': [{
+                        'name': 'Regional Markets',
+                        'type': 'scatter',
+                        'mode': 'markers+text',
+                        'color': '#9467bd'
+                    }]
+                },
+                'layout': {
+                    'xaxis': {'title': 'Market Size (Billion USD)'},
+                    'yaxis': {'title': 'Growth Rate (%)'},
+                    'height': 400
+                },
+                'insights': 'Regional market comparison by size and growth'
+            }
+        except Exception as e:
+            self.logger.error(f"지역별 비교 차트 생성 오류: {e}")
+            import traceback
+            traceback.print_exc()
+            return {}
     
     async def _create_valuation_comparison_chart(self, stock_analysis: Dict) -> Dict:
         """밸류에이션 비교 차트 생성"""

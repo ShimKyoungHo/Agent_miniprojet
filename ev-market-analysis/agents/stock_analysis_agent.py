@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import os
 from tavily import TavilyClient
 from .base_agent import BaseAgent
+import pandas as pd
 
 try:
     import yfinance as yf
@@ -468,27 +469,72 @@ JSON 형식으로만 응답:
                 'number_of_analysts': info.get('numberOfAnalystOpinions', 0)
             }
             
-            if recommendations is not None and not recommendations.empty:
-                # 최근 3개월 데이터
-                recent = recommendations[recommendations.index > (datetime.now() - timedelta(days=90))]
-                if not recent.empty:
+            # ⭐ None 체크
+            if recommendations is None:
+                self.logger.debug("recommendations가 None입니다")
+                return ratings
+            
+            # ⭐ empty 체크
+            if not hasattr(recommendations, 'empty'):
+                self.logger.debug("recommendations가 DataFrame이 아닙니다")
+                return ratings
+                
+            if recommendations.empty:
+                self.logger.debug("recommendations가 비어있습니다")
+                return ratings
+            
+            try:
+                # ⭐ 최근 20개 레코드만 사용 (날짜 필터링 제거)
+                recent = recommendations.tail(20)
+                self.logger.debug(f"애널리스트 추천 데이터: {len(recent)}개 레코드")
+                
+                # 컬럼별로 집계
+                if hasattr(recent, 'columns') and recent.columns is not None:
                     for col in recent.columns:
-                        col_lower = col.lower()
-                        if 'strong buy' in col_lower or 'strongbuy' in col_lower:
-                            ratings['strong_buy'] = int(recent[col].sum())
-                        elif 'buy' in col_lower:
-                            ratings['buy'] = int(recent[col].sum())
-                        elif 'hold' in col_lower:
-                            ratings['hold'] = int(recent[col].sum())
-                        elif 'sell' in col_lower and 'strong' not in col_lower:
-                            ratings['sell'] = int(recent[col].sum())
-                        elif 'strong sell' in col_lower or 'strongsell' in col_lower:
-                            ratings['strong_sell'] = int(recent[col].sum())
+                        try:
+                            col_lower = str(col).lower()
+                            col_sum = recent[col].sum()
+                            
+                            # 정수로 변환 가능한지 확인
+                            if pd.notna(col_sum):
+                                col_sum = int(col_sum)
+                            else:
+                                continue
+                            
+                            if 'strong buy' in col_lower or 'strongbuy' in col_lower:
+                                ratings['strong_buy'] += col_sum
+                            elif 'buy' in col_lower and 'strong' not in col_lower:
+                                ratings['buy'] += col_sum
+                            elif 'hold' in col_lower:
+                                ratings['hold'] += col_sum
+                            elif 'strong sell' in col_lower or 'strongsell' in col_lower:
+                                ratings['strong_sell'] += col_sum
+                            elif 'sell' in col_lower and 'strong' not in col_lower:
+                                ratings['sell'] += col_sum
+                                
+                        except (ValueError, TypeError, AttributeError) as col_error:
+                            self.logger.debug(f"컬럼 {col} 처리 중 오류: {col_error}")
+                            continue
+                
+            except Exception as processing_error:
+                self.logger.warning(f"추천 데이터 처리 중 오류: {processing_error}")
             
             return ratings
+            
         except Exception as e:
             self.logger.error(f"애널리스트 평가 처리 오류: {e}")
-            return {'average_target': None}
+            # 오류 발생 시 기본값 반환
+            return {
+                'strong_buy': 0,
+                'buy': 0,
+                'hold': 0,
+                'sell': 0,
+                'strong_sell': 0,
+                'average_target': info.get('targetMeanPrice') if info else None,
+                'high_target': info.get('targetHighPrice') if info else None,
+                'low_target': info.get('targetLowPrice') if info else None,
+                'number_of_analysts': info.get('numberOfAnalystOpinions', 0) if info else 0
+            }
     
     def _calculate_risk_metrics(self, hist, info: Dict) -> Dict:
         """리스크 지표 계산"""

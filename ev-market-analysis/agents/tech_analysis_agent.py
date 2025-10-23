@@ -24,63 +24,66 @@ class TechAnalysisAgent(BaseAgent):
             self.logger.warning("TAVILY_API_KEY가 설정되지 않았습니다. 검색 기능이 제한됩니다.")
     
     async def process(self, state: Dict[str, Any]) -> Dict[str, Any]:
-        """기술 분석 메인 프로세스"""
+        """기술 분석 메인 프로세스 - Rate Limiting 강화"""
         self.logger.info("기술 분석 시작...")
         
-        # 기업 기술 데이터 확인
-        company_tech_data = state.get('company_tech_data', {})
-        
         try:
-            # 병렬로 기술 분석
-            tasks = [
-                self._analyze_battery_technology(),
-                self._analyze_charging_technology(),
-                self._analyze_autonomous_technology(),
-                self._analyze_manufacturing_innovation(),
-                self._analyze_software_platform(),
-                self._analyze_future_technologies()
-            ]
+            # ⭐ Rate Limiting 설정
+            self.request_delay = 3.0  # API 호출 간 3초 대기 (기존 2초에서 증가)
+            self.max_retries = 3
             
-            results = await asyncio.gather(*tasks, return_exceptions=True)
+            # ⭐ 순차적으로 실행 (병렬 실행 금지)
+            # 각 분석 사이에 충분한 대기 시간 확보
+            
+            self.logger.info("1/6: 배터리 기술 분석 중...")
+            battery_tech = await self._analyze_battery_technology()
+            await asyncio.sleep(3)  # 추가 대기
+            
+            self.logger.info("2/6: 충전 기술 분석 중...")
+            charging_tech = await self._analyze_charging_technology()
+            await asyncio.sleep(3)  # 추가 대기
+            
+            self.logger.info("3/6: 자율주행 기술 분석 중...")
+            autonomous = await self._analyze_autonomous_technology()
+            await asyncio.sleep(3)  # 추가 대기
+            
+            self.logger.info("4/6: 소프트웨어 플랫폼 분석 중...")
+            software = await self._analyze_software_platform()
+            await asyncio.sleep(3)  # 추가 대기
+            
+            self.logger.info("5/6: 제조 혁신 분석 중...")
+            manufacturing = await self._analyze_manufacturing_innovation()
+            await asyncio.sleep(3)  # 추가 대기
+            
+            self.logger.info("6/6: 미래 기술 전망 분석 중...")
+            future_trends = await self._analyze_future_technologies()
             
             # 결과 통합
-            tech_analysis = {
-                'battery_tech': results[0] if not isinstance(results[0], Exception) else None,
-                'charging_tech': results[1] if not isinstance(results[1], Exception) else None,
-                'autonomous_tech': results[2] if not isinstance(results[2], Exception) else None,
-                'manufacturing_tech': results[3] if not isinstance(results[3], Exception) else None,
-                'software_platform': results[4] if not isinstance(results[4], Exception) else None,
-                'future_tech': results[5] if not isinstance(results[5], Exception) else None,
-                'company_tech_data': company_tech_data,
-                'timestamp': self.get_timestamp()
+            tech_trends = {
+                'battery_technology': battery_tech,
+                'charging_technology': charging_tech,
+                'autonomous_driving': autonomous,
+                'software_platform': software,
+                'manufacturing_innovation': manufacturing,
+                'future_trends': future_trends,
+                'analysis_timestamp': self.get_timestamp()
             }
             
-            # 기술 성숙도 평가
-            maturity = await self._assess_technology_maturity(tech_analysis)
-            tech_analysis['maturity_assessment'] = maturity
-            
-            # 기술 로드맵 생성
-            roadmap = await self._create_technology_roadmap(tech_analysis)
-            tech_analysis['roadmap'] = roadmap
-            
-            # LLM 종합 분석
-            if self.llm:
-                synthesis = await self._synthesize_tech_insights(tech_analysis)
-                tech_analysis['synthesis'] = synthesis
+            # 결과 저장
+            self.save_output(tech_trends, 'tech_analysis.json')
             
             # 상태 업데이트
-            state['tech_trends'] = tech_analysis
-            
-            # 결과 저장
-            self.save_output(tech_analysis, 'tech_analysis.json')
+            state['tech_trends'] = tech_trends
             
             self.logger.info("✅ 기술 분석 완료")
-            return state
             
         except Exception as e:
             self.logger.error(f"기술 분석 중 오류: {e}")
-            state['errors'].append(f"tech_analysis: {str(e)}")
-            return state
+            import traceback
+            traceback.print_exc()
+            state['tech_analysis_error'] = str(e)
+        
+        return state
     
     async def _analyze_battery_technology(self) -> Dict:
         """배터리 기술 분석"""

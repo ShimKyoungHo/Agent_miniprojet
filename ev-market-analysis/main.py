@@ -92,7 +92,7 @@ def load_config(mode: str) -> dict:
     # 모드별 설정 조정
     if mode == 'quick':
         # 빠른 테스트: 간단한 분석
-        base_config['llm']['model'] = 'gpt-3.5-turbo'
+        base_config['llm']['model'] = 'gpt-4o-mini'
         base_config['company_analysis']['max_companies'] = 3
     elif mode == 'full':
         # 전체 분석: 상세한 분석

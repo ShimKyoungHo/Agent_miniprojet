@@ -39,7 +39,8 @@ class ConsumerAnalysisAgent(BaseAgent):
                 self._analyze_price_sensitivity(),
                 self._analyze_brand_preferences(),
                 self._analyze_adoption_barriers(),
-                self._analyze_consumer_sentiment()
+                self._analyze_consumer_sentiment(),
+                self._analyze_vehicle_type_preferences()
             ]
             
             results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -52,8 +53,15 @@ class ConsumerAnalysisAgent(BaseAgent):
                 'brand_preferences': results[3] if not isinstance(results[3], Exception) else None,
                 'adoption_barriers': results[4] if not isinstance(results[4], Exception) else None,
                 'consumer_sentiment': results[5] if not isinstance(results[5], Exception) else None,
+                'vehicle_preferences': results[6] if not isinstance(results[6], Exception) else None,
                 'timestamp': self.get_timestamp()
             }
+            
+            # preferences 구조 추가 (차트 호환성)
+            if consumer_data['vehicle_preferences']:
+                consumer_data['preferences'] = {
+                    'vehicle_type': consumer_data['vehicle_preferences'].get('vehicle_type', {})
+                }
             
             # 영향 가중치 계산
             weights = await self._calculate_influence_weights(consumer_data)
@@ -256,6 +264,97 @@ class ConsumerAnalysisAgent(BaseAgent):
         except Exception as e:
             self.logger.error(f"도입 장벽 분석 오류: {e}")
             return self._get_fallback_adoption_barriers()
+    
+    async def _analyze_vehicle_type_preferences(self) -> Dict:
+        """차량 타입 선호도 분석 - 새로운 함수"""
+        self.logger.info("  🚗 차량 타입 선호도 분석 중...")
+        
+        if not self.tavily_client:
+            return self._get_fallback_vehicle_preferences()
+        
+        try:
+            query = "electric vehicle type preferences SUV sedan truck consumer survey 2024"
+            search_results = await asyncio.to_thread(
+                self.tavily_client.search,
+                query=query,
+                max_results=5
+            )
+            
+            # LLM으로 분석
+            if self.llm and search_results.get('results'):
+                analysis = await self._analyze_vehicle_preferences_with_llm(search_results)
+                return {
+                    'search_results': search_results.get('results', []),
+                    'vehicle_type': analysis.get('vehicle_type', {}),
+                    'llm_analysis': analysis.get('summary', ''),
+                    'analysis_date': datetime.now().isoformat()
+                }
+            else:
+                return self._get_fallback_vehicle_preferences()
+            
+        except Exception as e:
+            self.logger.error(f"차량 타입 선호도 분석 오류: {e}")
+            return self._get_fallback_vehicle_preferences()
+    
+    async def _analyze_vehicle_preferences_with_llm(self, search_results: Dict) -> Dict:
+        """LLM으로 차량 타입 선호도 분석"""
+        
+        context = "\n\n".join([
+            f"Source {i+1}: {r.get('content', '')[:500]}"
+            for i, r in enumerate(search_results.get('results', [])[:3])
+        ])
+        
+        prompt = f"""Based on the following search results about electric vehicle preferences, 
+analyze consumer preferences by vehicle type.
+
+{context}
+
+Provide your analysis in JSON format:
+{{
+    "vehicle_type": {{
+        "SUV": 0.35,
+        "Sedan": 0.30,
+        "Truck": 0.20,
+        "Compact": 0.15
+    }},
+    "summary": "Brief summary of findings"
+}}
+
+The values should be proportions (0-1) that sum to 1.0.
+"""
+        
+        try:
+            response = await self.llm.ainvoke(prompt)
+            
+            # JSON 파싱
+            import json
+            import re
+            
+            # JSON 부분 추출
+            json_match = re.search(r'\{.*\}', response.content, re.DOTALL)
+            if json_match:
+                result = json.loads(json_match.group())
+                return result
+            else:
+                return self._get_fallback_vehicle_preferences()
+                
+        except Exception as e:
+            self.logger.error(f"LLM 분석 오류: {e}")
+            return self._get_fallback_vehicle_preferences()
+    
+    def _get_fallback_vehicle_preferences(self) -> Dict:
+        """차량 타입 선호도 기본값"""
+        return {
+            'vehicle_type': {
+                'SUV': 0.35,
+                'Sedan': 0.30,
+                'Truck': 0.20,
+                'Compact': 0.15
+            },
+            'search_results': [],
+            'llm_analysis': '기본 데이터 사용 (검색 실패)',
+            'analysis_date': datetime.now().isoformat()
+        }
     
     async def _analyze_consumer_sentiment(self) -> Dict:
         """소비자 감성 분석"""
