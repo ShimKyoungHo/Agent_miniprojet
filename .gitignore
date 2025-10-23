@@ -210,3 +210,16 @@ __marimo__/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Agent outputs - 분석 결과 파일들
+outputs/
+outputs/**/*
+
+# 각 Agent별 출력 폴더 (선택적으로 명시)
+outputs/chart_generation/
+outputs/company_analysis/
+outputs/consumer_analysis/
+outputs/market_research/
+outputs/report_generation/
+outputs/stock_analysis/
+outputs/tech_analysis/
