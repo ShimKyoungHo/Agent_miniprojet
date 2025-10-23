@@ -2,358 +2,243 @@
   "individual_stocks": {
     "TSLA": {
       "company": "Tesla",
-      "current_price": 238.42043444161652,
+      "ticker": "TSLA",
+      "current_price": 442.6,
+      "currency": "USD",
       "price_history": {
-        "1d_change": -0.03688581920525702,
-        "1w_change": 0.06026507256499439,
-        "1m_change": 0.03509460685321142,
-        "3m_change": 0.14422904215558308,
-        "1y_change": 0.31994782813897565,
-        "ytd_change": -0.18719446700766051
+        "1d_change": -0.010794954856246196,
+        "1w_change": 0.01712056144209322,
+        "1m_change": 0.039333097945121104,
+        "3m_change": 0.4497216632830438,
+        "6m_change": 0.765175067428888,
+        "1y_change": 1.0305546801156635,
+        "ytd_change": 0.1669479211348149,
+        "52w_high": 479.8599853515625,
+        "52w_low": 213.64999389648438
       },
       "volume": {
-        "avg_volume_3m": 29663064,
-        "current_volume": 109642694,
-        "volume_trend": "stable"
+        "current_volume": 54112500,
+        "avg_volume_3m": 88379998,
+        "avg_volume_1m": 87880676,
+        "volume_trend": "decreasing"
       },
       "financials": {
-        "market_cap": 158816246000,
-        "pe_ratio": 67.4467551368468,
-        "ps_ratio": 8.499777348901741,
-        "pb_ratio": 1.3417534231542627,
-        "revenue_growth": 0.049832686833935824,
-        "gross_margin": 0.1238571888273627,
-        "operating_margin": 0.06269106627226292
+        "market_cap": 1471711805440,
+        "enterprise_value": 1404693643264,
+        "pe_ratio": 263.4524,
+        "forward_pe": 136.60493,
+        "peg_ratio": null,
+        "ps_ratio": 15.872647,
+        "pb_ratio": 18.456278,
+        "revenue_growth": -0.118,
+        "earnings_growth": -0.175,
+        "profit_margins": 0.063439995,
+        "gross_margins": 0.1748,
+        "operating_margins": 0.04103,
+        "roe": 0.08177,
+        "roa": 0.0296,
+        "debt_to_equity": 16.823,
+        "current_ratio": 2.037,
+        "quick_ratio": 1.359,
+        "free_cash_flow": 1398375040
       },
       "technical_indicators": {
-        "rsi": 68.5276271919035,
-        "macd": "bearish",
-        "ma_50": 234.78556546966144,
-        "ma_200": 280.98820996029565,
-        "support_level": 212.5,
-        "resistance_level": 287.5
+        "rsi": 45.008886052547325,
+        "ma_50": 391.8807989501953,
+        "ma_200": 335.25439949035643,
+        "macd_signal": "bearish",
+        "bb_upper": 458.0971675248416,
+        "bb_lower": 417.12682844683803,
+        "current_price": 442.6000061035156,
+        "support_level": 413.489990234375,
+        "resistance_level": 459.4599914550781
       },
       "analyst_ratings": {
-        "strong_buy": 2,
-        "buy": 4,
-        "hold": 14,
-        "sell": 5,
-        "strong_sell": 2,
-        "average_target": 327.05018772302475,
-        "high_target": 335.7155348680514,
-        "low_target": 224.69805075289952
+        "average_target": null
       },
       "risk_metrics": {
-        "beta": 1.392769950507529,
-        "volatility_30d": 0.38169275023465454,
-        "sharpe_ratio": -0.33089217495564494,
-        "max_drawdown": -0.2704532952551762
-      }
+        "beta": 2.086,
+        "volatility_30d": 0.5280958875963495,
+        "sharpe_ratio": 4.103718739847701,
+        "max_drawdown": -0.537656801185852,
+        "var_95": -0.05690740317027554
+      },
+      "market_cap": 1471711805440,
+      "sector": "Consumer Cyclical",
+      "industry": "Auto Manufacturers",
+      "data_date": "2025-10-22T17:42:40.173914"
     },
-    "BYD": {
+    "005380.KS": {
+      "company": "Hyundai Motors",
+      "ticker": "005380.KS",
+      "current_price": 261000.0,
+      "currency": "KRW",
+      "price_history": {
+        "1d_change": 0.017543859649122806,
+        "1w_change": 0.07851239669421488,
+        "1m_change": 0.21395348837209302,
+        "3m_change": 0.25714283133943283,
+        "6m_change": 0.4924634349138876,
+        "1y_change": 0.1755521467233208,
+        "ytd_change": 0.303390007858262,
+        "52w_high": 261000.0,
+        "52w_low": 173123.03125
+      },
+      "volume": {
+        "current_volume": 1060191,
+        "avg_volume_3m": 714304,
+        "avg_volume_1m": 769335,
+        "volume_trend": "increasing"
+      },
+      "financials": {
+        "market_cap": 63944458764288,
+        "enterprise_value": 197820405514240,
+        "pe_ratio": null,
+        "forward_pe": 5.7326636,
+        "peg_ratio": null,
+        "ps_ratio": 0.35086802,
+        "pb_ratio": null,
+        "revenue_growth": 0.073,
+        "earnings_growth": -0.168,
+        "profit_margins": 0.063,
+        "gross_margins": 0.19574,
+        "operating_margins": 0.07459,
+        "roe": 0.10644,
+        "roa": 0.02636,
+        "debt_to_equity": 127.838,
+        "current_ratio": 0.768,
+        "quick_ratio": 0.458,
+        "free_cash_flow": 954458112000
+      },
+      "technical_indicators": {
+        "rsi": 90.0,
+        "ma_50": 220402.9553125,
+        "ma_200": 202068.89828125,
+        "macd_signal": "bullish",
+        "bb_upper": 255958.51866889035,
+        "bb_lower": 195691.48133110965,
+        "current_price": 261000.0,
+        "support_level": 214500.0,
+        "resistance_level": 261000.0
+      },
+      "analyst_ratings": {
+        "average_target": null
+      },
+      "risk_metrics": {
+        "beta": 0.802,
+        "volatility_30d": 0.30770080187103255,
+        "sharpe_ratio": 4.75820235064085,
+        "max_drawdown": -0.2412790263718793,
+        "var_95": -0.034299484825681126
+      },
+      "market_cap": 63944458764288,
+      "sector": "Consumer Cyclical",
+      "industry": "Auto Manufacturers",
+      "data_date": "2025-10-22T17:42:40.158400"
+    },
+    "1211.HK": {
       "company": "BYD",
-      "current_price": 34.143646727524725,
+      "ticker": "1211.HK",
+      "current_price": 102.9,
+      "currency": "HKD",
       "price_history": {
-        "1d_change": 0.008385115401790363,
-        "1w_change": 0.025937355636600767,
-        "1m_change": 0.049907948640447314,
-        "3m_change": 0.06899370028519314,
-        "1y_change": -0.10658741870780736,
-        "ytd_change": -0.12706091427320912
+        "1d_change": -0.009624638934686876,
+        "1w_change": -0.04368026965513931,
+        "1m_change": -0.06198719791734911,
+        "3m_change": -0.22104468757370943,
+        "6m_change": -0.2005320456782299,
+        "1y_change": 0.09666988171327996,
+        "ytd_change": 0.20880040668251357,
+        "52w_high": 153.37135314941406,
+        "52w_low": 82.15851593017578
       },
       "volume": {
-        "avg_volume_3m": 49145099,
-        "current_volume": 38284160,
-        "volume_trend": "increasing"
+        "current_volume": 20562905,
+        "avg_volume_3m": 36244763,
+        "avg_volume_1m": 28295917,
+        "volume_trend": "decreasing"
       },
       "financials": {
-        "market_cap": 7778431500,
-        "pe_ratio": 16.171213586686786,
-        "ps_ratio": 6.171467573494667,
-        "pb_ratio": 1.4809405184943443,
-        "revenue_growth": 0.3630377338490718,
-        "gross_margin": 0.2229407207647469,
-        "operating_margin": 0.1128409516894901
+        "market_cap": 994133934080,
+        "enterprise_value": 862401134592,
+        "pe_ratio": 12.564103,
+        "forward_pe": 5.951417,
+        "peg_ratio": null,
+        "ps_ratio": 1.1733563,
+        "pb_ratio": 4.456861,
+        "revenue_growth": 0.14,
+        "earnings_growth": -0.349,
+        "profit_margins": 0.04973,
+        "gross_margins": 0.18747999,
+        "operating_margins": 0.02004,
+        "roe": 0.21792,
+        "roa": 0.03479,
+        "debt_to_equity": 20.506,
+        "current_ratio": 0.761,
+        "quick_ratio": 0.423,
+        "free_cash_flow": -2945048832
       },
       "technical_indicators": {
-        "rsi": 60.60083247658689,
-        "macd": "bearish",
-        "ma_50": 38.336333859623295,
-        "ma_200": 32.9718910107941,
-        "support_level": 29.75,
-        "resistance_level": 40.25
+        "rsi": 37.192993915492565,
+        "ma_50": 109.46400009155273,
+        "ma_200": 117.27868320465087,
+        "macd_signal": "bearish",
+        "bb_upper": 112.7930915268553,
+        "bb_lower": 101.97690740502946,
+        "current_price": 102.9000015258789,
+        "support_level": 102.9000015258789,
+        "resistance_level": 113.9000015258789
       },
       "analyst_ratings": {
-        "strong_buy": 1,
-        "buy": 6,
-        "hold": 9,
-        "sell": 1,
-        "strong_sell": 2,
-        "average_target": 33.020838144288874,
-        "high_target": 52.923193510260134,
-        "low_target": 28.547209776293553
+        "average_target": null
       },
       "risk_metrics": {
-        "beta": 1.613112666449453,
-        "volatility_30d": 0.3956448819246612,
-        "sharpe_ratio": 0.5953081997051997,
-        "max_drawdown": -0.3880621220538186
-      }
-    },
-    "RIVN": {
-      "company": "Rivian",
-      "current_price": 15.429171091413552,
-      "price_history": {
-        "1d_change": 0.016578940800301284,
-        "1w_change": -0.010778896403967786,
-        "1m_change": -0.049968923960856934,
-        "3m_change": 0.09735263486085488,
-        "1y_change": 0.07618113453595604,
-        "ytd_change": -0.166885313890937
+        "beta": 0.477,
+        "volatility_30d": 0.3315550892829174,
+        "sharpe_ratio": -0.5555492966650141,
+        "max_drawdown": -0.3290793918624826,
+        "var_95": -0.0404395804802003
       },
-      "volume": {
-        "avg_volume_3m": 86458818,
-        "current_volume": 45588383,
-        "volume_trend": "increasing"
-      },
-      "financials": {
-        "market_cap": 4703299440,
-        "pe_ratio": null,
-        "ps_ratio": 9.96456008887293,
-        "pb_ratio": 13.58876640838917,
-        "revenue_growth": 0.29089286089280064,
-        "gross_margin": 0.09183272923947822,
-        "operating_margin": 0.1154565839816108
-      },
-      "technical_indicators": {
-        "rsi": 65.4441471452958,
-        "macd": "bearish",
-        "ma_50": 14.274712311985413,
-        "ma_200": 16.03915202203787,
-        "support_level": 12.75,
-        "resistance_level": 17.25
-      },
-      "analyst_ratings": {
-        "strong_buy": 9,
-        "buy": 5,
-        "hold": 9,
-        "sell": 0,
-        "strong_sell": 1,
-        "average_target": 13.910199177540838,
-        "high_target": 23.62194083518296,
-        "low_target": 12.595368436962525
-      },
-      "risk_metrics": {
-        "beta": 1.6568532366753816,
-        "volatility_30d": 0.36036204346335765,
-        "sharpe_ratio": 1.1706166255846733,
-        "max_drawdown": -0.3695943619656268
-      }
-    },
-    "LCID": {
-      "company": "Lucid",
-      "current_price": 4.096197750713644,
-      "price_history": {
-        "1d_change": 0.033300500704781064,
-        "1w_change": 0.05144448176311822,
-        "1m_change": 0.14531011574019573,
-        "3m_change": 0.1590559010981067,
-        "1y_change": 0.47970269349186484,
-        "ytd_change": 0.24014293494811023
-      },
-      "volume": {
-        "avg_volume_3m": 18999096,
-        "current_volume": 42554230,
-        "volume_trend": "increasing"
-      },
-      "financials": {
-        "market_cap": 3916106728,
-        "pe_ratio": null,
-        "ps_ratio": 3.2728840409802444,
-        "pb_ratio": 1.9348215650676732,
-        "revenue_growth": 0.42483030942778877,
-        "gross_margin": 0.24672540993744824,
-        "operating_margin": 0.08184332859952281
-      },
-      "technical_indicators": {
-        "rsi": 54.65849588818823,
-        "macd": "bearish",
-        "ma_50": 3.834681557197161,
-        "ma_200": 3.985260449678629,
-        "support_level": 3.4,
-        "resistance_level": 4.6
-      },
-      "analyst_ratings": {
-        "strong_buy": 0,
-        "buy": 7,
-        "hold": 12,
-        "sell": 3,
-        "strong_sell": 0,
-        "average_target": 3.7764089269487355,
-        "high_target": 6.429945122119481,
-        "low_target": 3.0005052086640944
-      },
-      "risk_metrics": {
-        "beta": 0.8426968117960046,
-        "volatility_30d": 0.23489788869821815,
-        "sharpe_ratio": 0.4869473779356177,
-        "max_drawdown": -0.23181697884016747
-      }
-    },
-    "NIO": {
-      "company": "NIO",
-      "current_price": 8.249423657496246,
-      "price_history": {
-        "1d_change": 0.028719450705442892,
-        "1w_change": 0.026875656808330428,
-        "1m_change": -0.11837519202477839,
-        "3m_change": -0.05316477361146732,
-        "1y_change": 0.10009849759958495,
-        "ytd_change": -0.18324348380768885
-      },
-      "volume": {
-        "avg_volume_3m": 67150890,
-        "current_volume": 113099327,
-        "volume_trend": "increasing"
-      },
-      "financials": {
-        "market_cap": 3396260192,
-        "pe_ratio": 21.418494299563825,
-        "ps_ratio": 3.2228645471751225,
-        "pb_ratio": 1.823664499591856,
-        "revenue_growth": -0.08981458520958308,
-        "gross_margin": 0.23353571719713645,
-        "operating_margin": 0.020917568466878728
-      },
-      "technical_indicators": {
-        "rsi": 69.84697534528424,
-        "macd": "neutral",
-        "ma_50": 7.993607380966191,
-        "ma_200": 8.73534491335639,
-        "support_level": 6.8,
-        "resistance_level": 9.2
-      },
-      "analyst_ratings": {
-        "strong_buy": 1,
-        "buy": 9,
-        "hold": 17,
-        "sell": 1,
-        "strong_sell": 3,
-        "average_target": 7.992760352421277,
-        "high_target": 10.62809133431462,
-        "low_target": 6.631225839535329
-      },
-      "risk_metrics": {
-        "beta": 1.090510794626386,
-        "volatility_30d": 0.503217287841492,
-        "sharpe_ratio": 0.5288531935124636,
-        "max_drawdown": -0.32252058358950564
-      }
+      "market_cap": 994133934080,
+      "sector": "Consumer Cyclical",
+      "industry": "Auto Manufacturers",
+      "data_date": "2025-10-22T17:42:40.355181"
     }
   },
   "sector_analysis": {
-    "sector_market_cap": 178610343860,
-    "sector_performance": {
-      "1y": 0.1738685470117148,
-      "ytd": -0.08484824880627703
-    },
-    "vs_sp500": {
-      "outperformance_1y": 0.023868547011714814,
-      "correlation": 0.6935738450203032
-    },
-    "subsector_performance": {
-      "pure_play_ev": [
+    "Consumer Cyclical": {
+      "stocks": [
         "TSLA",
-        "RIVN",
-        "LCID"
+        "005380.KS",
+        "1211.HK"
       ],
-      "chinese_ev": [
-        "BYD",
-        "NIO",
-        "XPEV",
-        "LI"
-      ],
-      "traditional_oem": [
-        "F",
-        "GM",
-        "STLA"
-      ]
-    },
-    "momentum_indicators": {
-      "sector_trend": "downward",
-      "strength": "moderate"
+      "avg_return_1y": 0.4342589028507548,
+      "count": 3
     }
   },
   "correlation_analysis": {
-    "correlations": {
-      "TSLA_vs_BYD": 0.5073571552513284,
-      "TSLA_vs_RIVN": 0.4555435048510619,
-      "TSLA_vs_LCID": 0.4794277208037044,
-      "TSLA_vs_NIO": 0.5455365751261391,
-      "BYD_vs_RIVN": 0.5196857633253692,
-      "BYD_vs_LCID": 0.5724865199769098,
-      "BYD_vs_NIO": 0.3991911212657655,
-      "RIVN_vs_LCID": 0.3631689889929975,
-      "RIVN_vs_NIO": 0.35994780166860285,
-      "LCID_vs_NIO": 0.421075542617221
-    },
-    "highest_correlation": "BYD_vs_LCID",
-    "lowest_correlation": "RIVN_vs_NIO",
-    "diversification_score": 0.5376579306120901
+    "note": "상관관계 분석은 실제 구현 시 pandas로 계산",
+    "returns": {
+      "TSLA": 1.0305546801156635,
+      "005380.KS": 0.1755521467233208,
+      "1211.HK": 0.09666988171327996
+    }
   },
   "valuation_metrics": {
-    "sector_average_pe": 35.01215434103247,
-    "sector_average_ps": 6.226310719884941,
-    "most_expensive": "RIVN",
-    "cheapest": "NIO",
-    "valuation_spread": {
-      "high_ps": 9.96456008887293,
-      "low_ps": 3.2228645471751225
-    }
+    "avg_pe": 138.0082515,
+    "median_pe": 263.4524,
+    "avg_ps": 5.798957106666667,
+    "avg_pb": 11.4565695,
+    "sample_size": 3
   },
-  "investment_insights": {
-    "investment_thesis": "1. 가장 매력적인 투자 기회:\n   - 주어진 데이터를 기반으로 볼 때, 가장 매력적인 투자 기회는 'TSLA'와 'LCID'로 보입니다. 이들 기업은 순수 전기차 기업으로서 섹터에서 유망한 위치를 차지하고 있으며, 가치평가 지표를 고려할 때 상대적으로 저평가되어 있는 것으로 나타납니다.\n\n2. 주요 리스크 요인:\n   - 섹터의 하락 추세와 관련된 높은 상관관계, 그리고 개별 기업들의 가격 수준을 고려할 때 시장 일반의 하락으로 인한 영향이 주요 리스크 요인으로 작용할 수 있습니다. 또한, 전기차 산업의 기술적인 변화나 정책적인 변화 역시 주요 리스크 요인으로 작용할 수 있습니다.\n\n3. 섹터 로테이션 전망:\n   - 현재 섹터의 트렌드는 하락세이며, 강도는 중간 수준으로 나타납니다. 따라서 단기적으로는 전기차 섹터의 하락이 지속될 수 있으나, 장기적으로는 전기차 시장의 성장이 지속될 것으로 전망됩니다.\n\n4. 포트폴리오 구성 추천:\n   - 포트폴리오 구성 시에는 'TSLA'와 'LCID'를 중심으로 구성하는 것이 좋을 수 있습니다. 이를 통해 전기차 섹터의 성장에 대한 노출을 높일 수 있으며, 가치평가 지표상으로도 매력적인 기업들입니다.\n\n5. 진입/청산 시점 제안:\n   - 현재 섹터의 하락 추세와 관련된 상황을 고려할 때, 진입 시점은 섹터의 하락이 진행 중인 시점이나 하락이 완만해질 때를 기다리는 것이 좋을 수 있습니다. 청산 시점은 섹터의 반등이 시작되거나 개별 기업의 가치가 상당히 높아졌을 때를 고려할 수 있습니다. 즉, 단기적인 시장 변동성을 고려하여 진입/청산 시점을 결정하는 것이 중요합니다.",
-    "top_picks": [
-      {
-        "ticker": "LCID",
-        "company": "Lucid",
-        "reason": "Strong fundamentals and growth potential"
-      },
-      {
-        "ticker": "TSLA",
-        "company": "Tesla",
-        "reason": "Strong fundamentals and growth potential"
-      },
-      {
-        "ticker": "BYD",
-        "company": "BYD",
-        "reason": "Strong fundamentals and growth potential"
-      }
-    ],
-    "risk_warnings": [
-      "High volatility in NIO"
-    ],
-    "generated_at": "2025-10-22T14:41:50.425238"
-  },
+  "investment_insights": "1. 전기차 산업은 지속 가능한 미래를 위한 핵심 기술로 인정받고 있으며, 국제적으로 환경 문제가 심각해지면서 전기차 수요가 증가하고 있는 추세입니다. 이에 따라 전기차 시장은 계속해서 성장할 것으로 전망됩니다.\n\n2. TSLA (Tesla)는 전기차 시장에서 선두주자로서 글로벌 시장에서 큰 영향력을 가지고 있습니다. 혁신적인 기술과 높은 수익률로 투자자들의 관심을 끌고 있으며, 미래 성장 가능성이 높은 종목으로 주목됩니다.\n\n3. 밸류에이션 측면에서는 TSLA의 P/E 비율이 매우 높지만, 기업의 성장 가능성을 고려할 때에는 그만큼의 가치가 있을 수 있습니다. 다만, 투자자들은 이러한 높은 밸류에이션을 감안하고 투자 결정을 내려야 합니다.\n\n4. 전기차 산업은 기술적인 변화가 빠르게 일어나기 때문에 투자 시에는 산업 동향을 주시하고 기업의 기술력과 경쟁력을 면밀히 분석해야 합니다. 또한, 시장 변동성이 크기 때문에 적정한 리스크 관리가 필요합니다.",
   "market_sentiment": {
-    "analyst_sentiment": {
-      "bullish_percent": 0.35772357723577236,
-      "neutral_percent": 0.4959349593495935,
-      "bearish_percent": 0.14634146341463414,
-      "overall": "bullish"
-    },
-    "technical_sentiment": {
-      "average_rsi": 63.81561560945173,
-      "condition": "neutral"
-    },
-    "volume_sentiment": {
-      "trending_stocks": [
-        "BYD",
-        "RIVN",
-        "LCID",
-        "NIO"
-      ]
-    }
+    "positive": 1,
+    "negative": 1,
+    "neutral": 1,
+    "positive_ratio": 0.3333333333333333,
+    "sentiment": "neutral"
   },
-  "timestamp": "2025-10-22T14:41:50.425238"
+  "data_source": "yfinance",
+  "timestamp": "2025-10-22T17:42:45.842433"
 }

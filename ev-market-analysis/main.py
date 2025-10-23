@@ -70,12 +70,21 @@ def load_config(mode: str) -> dict:
             
         },
         'stock_analysis': {
-            'tickers': {
-                'TSLA': 'Tesla',
-                'BYD': 'BYD',
-                'RIVN': 'Rivian',
-                'LCID': 'Lucid',
-                'NIO': 'NIO'
+            'stock_analysis': {
+                'use_real_data': True,  # yfinance 사용
+                'tickers': {            # 커스텀 티커 추가
+                    'Polestar': 'PSNY',
+                    'Zeekr': 'ZK',
+                    'Tesla': 'TSLA',
+                    'Rivian': 'RIVN',
+                    'GM': 'GM',
+                    'Ford': 'F',
+                    'BYD': 'BYDDF',
+                    'Li Auto': 'LI',
+                    'XPeng': 'XPEV',
+                    'BMW': 'BMWYY',
+                    'Volkswagen': 'VWAGY'
+                }
             }
         }
     }

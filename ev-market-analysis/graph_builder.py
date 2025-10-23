@@ -1,7 +1,8 @@
 # graph_builder.py
 """
 전기차 시장 분석 Graph Builder
-3개의 독립적인 분석 체인을 병렬로 실행하는 구조
+2개의 독립적인 분석 체인을 병렬로 실행하는 구조
+Chain 2에서 Tech Analysis와 Stock Analysis를 병렬 실행
 """
 
 from typing import Dict, Any, List
@@ -24,7 +25,7 @@ from state_manager import AgentState, StateManager
 
 
 class EVMarketAnalysisGraph:
-    """전기차 시장 분석 Multi-Agent Graph - 3개 체인 병렬 실행"""
+    """전기차 시장 분석 Multi-Agent Graph - 2개 체인 병렬 실행 + 내부 병렬화"""
     
     def __init__(self, config: Dict[str, Any] = None):
         """
@@ -84,7 +85,7 @@ class EVMarketAnalysisGraph:
         return agents
     
     def _build_graph(self) -> StateGraph:
-        """LangGraph 구성 - 3개 체인 병렬 실행"""
+        """LangGraph 구성 - 2개 체인 병렬 실행"""
         workflow = StateGraph(AgentState)
         
         # 병렬 실행 노드 (동기 래퍼 사용)
@@ -100,7 +101,7 @@ class EVMarketAnalysisGraph:
         workflow.add_edge("chart_generation", "report_generation")
         workflow.add_edge("report_generation", END)
         
-        self.logger.info("Graph built successfully (3-chain parallel execution)")
+        self.logger.info("Graph built successfully (2-chain parallel execution with nested parallelism)")
         return workflow.compile()
     
     async def _execute_chain_1(self, state: AgentState) -> AgentState:
@@ -133,22 +134,44 @@ class EVMarketAnalysisGraph:
     
     async def _execute_chain_2(self, state: AgentState) -> AgentState:
         """
-        Chain 2: Company Analysis → Tech Analysis
+        Chain 2: Company Analysis → (Tech Analysis ∥ Stock Analysis)
+        Company Analysis 완료 후 Tech와 Stock을 병렬 실행
         """
-        self.logger.info("🔗 Chain 2 시작: Company Analysis → Tech Analysis")
+        self.logger.info("🔗 Chain 2 시작: Company Analysis → (Tech ∥ Stock)")
         
         try:
-            # 1. Company Analysis
+            # 1. Company Analysis (선행 필수)
             self.logger.info("  ├─ Company Analysis Agent 실행 중...")
             state = await self.agents['company_analysis'].process(state)
             state['completed_agents'].append('company_analysis')
             self.logger.info("  ├─ Company Analysis Agent 완료 ✅")
             
-            # 2. Tech Analysis (Company Analysis 결과 사용)
-            self.logger.info("  └─ Tech Analysis Agent 실행 중...")
-            state = await self.agents['tech_analysis'].process(state)
-            state['completed_agents'].append('tech_analysis')
-            self.logger.info("  └─ Tech Analysis Agent 완료 ✅")
+            # 2. Tech Analysis와 Stock Analysis 병렬 실행 ⭐
+            self.logger.info("  ├─ Tech Analysis ∥ Stock Analysis 병렬 실행 중...")
+            
+            # 각각을 위한 state 복사본 생성
+            state_tech = dict(state)
+            state_stock = dict(state)
+            
+            # 병렬 실행
+            parallel_tasks = [
+                self._run_tech_analysis(state_tech),
+                self._run_stock_analysis(state_stock)
+            ]
+            
+            parallel_results = await asyncio.gather(*parallel_tasks, return_exceptions=True)
+            
+            # 결과 병합
+            for i, result in enumerate(parallel_results):
+                if isinstance(result, Exception):
+                    agent_name = 'tech_analysis' if i == 0 else 'stock_analysis'
+                    error_msg = f"{agent_name} 실행 실패: {str(result)}"
+                    self.logger.error(f"  │  ❌ {error_msg}")
+                    state['errors'].append(error_msg)
+                else:
+                    state = self._merge_states(state, result)
+            
+            self.logger.info("  └─ Tech ∥ Stock 병렬 실행 완료 ✅")
             
             self.logger.info("🔗 Chain 2 완료!")
             return state
@@ -159,46 +182,50 @@ class EVMarketAnalysisGraph:
             state['errors'].append(error_msg)
             return state
     
-    async def _execute_chain_3(self, state: AgentState) -> AgentState:
-        """
-        Chain 3: Stock Analysis (독립 실행)
-        """
-        self.logger.info("🔗 Chain 3 시작: Stock Analysis")
-        
+    async def _run_tech_analysis(self, state: AgentState) -> AgentState:
+        """Tech Analysis 실행"""
         try:
-            # Stock Analysis
-            self.logger.info("  └─ Stock Analysis Agent 실행 중...")
+            self.logger.info("  │  ├─ Tech Analysis Agent 실행 중...")
+            state = await self.agents['tech_analysis'].process(state)
+            state['completed_agents'].append('tech_analysis')
+            self.logger.info("  │  ├─ Tech Analysis Agent 완료 ✅")
+            return state
+        except Exception as e:
+            self.logger.error(f"  │  ├─ Tech Analysis 오류: {e}")
+            state['errors'].append(f"tech_analysis: {str(e)}")
+            raise
+    
+    async def _run_stock_analysis(self, state: AgentState) -> AgentState:
+        """Stock Analysis 실행"""
+        try:
+            self.logger.info("  │  └─ Stock Analysis Agent 실행 중...")
             state = await self.agents['stock_analysis'].process(state)
             state['completed_agents'].append('stock_analysis')
-            self.logger.info("  └─ Stock Analysis Agent 완료 ✅")
-            
-            self.logger.info("🔗 Chain 3 완료!")
+            self.logger.info("  │  └─ Stock Analysis Agent 완료 ✅")
             return state
-            
         except Exception as e:
-            error_msg = f"Chain 3 실행 중 오류: {str(e)}"
-            self.logger.error(error_msg)
-            state['errors'].append(error_msg)
-            return state
+            self.logger.error(f"  │  └─ Stock Analysis 오류: {e}")
+            state['errors'].append(f"stock_analysis: {str(e)}")
+            raise
     
     async def _execute_parallel_chains(self, state: AgentState) -> AgentState:
         """
-        3개의 분석 체인을 병렬로 실행하고 결과를 취합
+        2개의 분석 체인을 병렬로 실행하고 결과를 취합
         """
         self.logger.info("=" * 70)
-        self.logger.info("🚀 3개 분석 체인 병렬 실행 시작")
+        self.logger.info("🚀 2개 분석 체인 병렬 실행 시작")
+        self.logger.info("  - Chain 1: Market Research → Consumer Analysis")
+        self.logger.info("  - Chain 2: Company Analysis → (Tech ∥ Stock)")
         self.logger.info("=" * 70)
         
         # 각 체인을 위한 state 복사본 생성
         state_1 = dict(state)
         state_2 = dict(state)
-        state_3 = dict(state)
         
-        # 3개 체인 병렬 실행
+        # 2개 체인 병렬 실행
         tasks = [
             self._execute_chain_1(state_1),
-            self._execute_chain_2(state_2),
-            self._execute_chain_3(state_3)
+            self._execute_chain_2(state_2)
         ]
         
         results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -246,6 +273,13 @@ class EVMarketAnalysisGraph:
         Returns:
             병합된 상태
         """
+        # analysis_results 병합 (중요!)
+        if 'analysis_results' not in base_state:
+            base_state['analysis_results'] = {}
+        
+        if 'analysis_results' in new_state and new_state['analysis_results']:
+            base_state['analysis_results'].update(new_state['analysis_results'])
+        
         # 데이터 필드 병합
         data_fields = [
             'market_trends', 'government_policies', 'market_data',

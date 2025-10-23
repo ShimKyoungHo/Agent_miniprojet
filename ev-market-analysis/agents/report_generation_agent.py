@@ -108,9 +108,9 @@ class ReportGenerationAgent(BaseAgent):
             'stock_analysis': state.get('stock_analysis', {}),
             'charts': state.get('charts', []),
             'metadata': {
-                'report_date': datetime.now().strftime('%Y-%m-%d'),
-                'analysis_period': '2024-2030',
-                'data_sources': self._get_data_sources(state)
+            'report_date': datetime.now().strftime('%Y-%m-%d'),
+            'analysis_period': '2024-2030',
+            'data_sources': self._get_data_sources(state)
             }
         }
     

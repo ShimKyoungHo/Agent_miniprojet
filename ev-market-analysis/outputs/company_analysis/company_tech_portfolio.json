@@ -1,0 +1,39 @@
+{
+  "Tesla": {
+    "battery": "Next-generation batteries, likely leveraging advancements in the 4680 battery cells",
+    "charging": "N/A",
+    "motor_powertrain": "N/A",
+    "autonomous": "N/A",
+    "platform": "N/A",
+    "software": "Enhanced software and connectivity",
+    "other": "N/A",
+    "key_differentiators": []
+  },
+  "Hyundai Motors": {
+    "battery": "Development of lithium iron phosphate battery cathode material manufacturing technology in collaboration with Hyundai Steel and EcoPro BM",
+    "charging": "N/A",
+    "motor_powertrain": "N/A",
+    "autonomous": "N/A",
+    "platform": "N/A",
+    "software": "N/A",
+    "other": "N/A",
+    "key_differentiators": [
+      "Affordable and high-performance electric vehicles",
+      "Focus on electrified vehicles for growth strategy"
+    ]
+  },
+  "BYD": {
+    "battery": "Blade Battery: BYD's innovative battery technology unveiled in 2020, constructed with lithium iron-phosphate chemistry for improved safety and performance.",
+    "charging": "Flash Charging Capability: Represents the latest advancement in charging technology for BYD electric cars.",
+    "motor_powertrain": "N/A",
+    "autonomous": "NVIDIA DRIVE Hyperion computing architecture: Used in BYD's new energy vehicles for automated driving and parking.",
+    "platform": "e-platform 3.0: Represents BYD's holistic approach to vehicle platform innovation.",
+    "software": "N/A",
+    "other": "N/A",
+    "key_differentiators": [
+      "Blade Battery with LFP chemistry",
+      "Flash Charging Capability",
+      "NVIDIA DRIVE Hyperion computing architecture"
+    ]
+  }
+}
